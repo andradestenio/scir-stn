@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🚨%3C/text%3E%3C/svg%3E">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#0f2747">
+  <meta name="application-name" content="SCIR — NIR CEMETRON">
+  <meta name="apple-mobile-web-app-title" content="SCIR">
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Sistema de Controle Interno de Regulações — NIR CEMETRON</title>
   <style>
     :root{
@@ -113,6 +122,580 @@
       line-height:1.6;
     }
 
+    .topbar-actions{
+      position:relative;
+      display:flex;
+      align-items:stretch;
+      gap:10px;
+    }
+
+    .email-notification-button{
+      position:relative;
+      display:grid;
+      place-items:center;
+      width:48px;
+      min-width:48px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#fff;
+      color:var(--navy);
+      cursor:pointer;
+      box-shadow:0 4px 14px rgba(15,39,71,.06);
+    }
+
+    .email-notification-button:hover{
+      border-color:#94a3b8;
+      background:#f8fafc;
+    }
+
+    .email-notification-button svg{
+      width:22px;
+      height:22px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .email-notification-badge{
+      position:absolute;
+      top:-7px;
+      right:-7px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:22px;
+      height:22px;
+      padding:0 6px;
+      border:2px solid #f4f6f8;
+      border-radius:999px;
+      background:#b42318;
+      color:#fff;
+      font-size:11px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .email-notification-popover{
+      position:absolute;
+      top:58px;
+      right:0;
+      z-index:1500;
+      width:min(430px,calc(100vw - 32px));
+      overflow:hidden;
+      border:1px solid #cbd5e1;
+      border-radius:14px;
+      background:#fff;
+      box-shadow:0 22px 60px rgba(15,39,71,.24);
+    }
+
+    .email-notification-popover.hidden{display:none}
+
+    .email-notification-popover-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:15px 16px;
+      border-bottom:1px solid #e2e8f0;
+      background:#f8fafc;
+    }
+
+    .email-notification-popover-header h3{
+      margin:0 0 3px;
+      color:var(--navy);
+      font-size:16px;
+    }
+
+    .email-notification-popover-header p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .email-notification-header-actions{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .email-notification-icon-button{
+      display:grid;
+      place-items:center;
+      width:34px;
+      height:34px;
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      background:#fff;
+      color:var(--navy);
+      cursor:pointer;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .email-notification-icon-button svg{
+      width:17px;
+      height:17px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .email-notification-icon-button.muted{
+      border-color:#fca5a5;
+      background:#fef2f2;
+      color:#b42318;
+    }
+
+    .email-notification-list{
+      max-height:430px;
+      overflow-y:auto;
+      overscroll-behavior:contain;
+    }
+
+    .email-notification-tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+      padding:9px 12px;
+      border-bottom:1px solid #e2e8f0;
+      background:#fff;
+    }
+
+    .email-notification-tab{
+      min-height:35px;
+      padding:7px 10px;
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      background:#fff;
+      color:#475569;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .email-notification-tab.active{
+      border-color:var(--navy-2);
+      background:var(--navy);
+      color:#fff;
+    }
+
+    .email-notification-item{
+      position:relative;
+      padding:15px 16px 14px 20px;
+      border-bottom:1px solid #e2e8f0;
+      background:#fff;
+    }
+
+    .email-notification-item:last-child{border-bottom:0}
+
+    .email-notification-item.unread{
+      background:#eff6ff;
+    }
+
+    .email-notification-item.pending{
+      background:#fffbeb;
+    }
+
+    .email-notification-item.pending.unread::before{
+      background:#d97706;
+    }
+
+    .email-notification-item.read{
+      background:#eff6ff;
+    }
+
+    .email-notification-item.responded{
+      background:#f0fdf4;
+    }
+
+    .email-notification-item.acknowledged{
+      background:#faf5ff;
+    }
+
+    .email-notification-item.unread::before{
+      content:"";
+      position:absolute;
+      top:18px;
+      left:8px;
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:#2563eb;
+    }
+
+    .email-notification-item strong{
+      display:block;
+      margin-bottom:8px;
+      color:var(--navy);
+      font-size:13px;
+    }
+
+    .email-notification-item dl{
+      display:grid;
+      gap:5px;
+      margin:0;
+      color:#334155;
+      font-size:13px;
+      line-height:1.42;
+    }
+
+    .email-notification-item dl div{
+      display:grid;
+      grid-template-columns:64px minmax(0,1fr);
+      gap:6px;
+    }
+
+    .email-notification-item dt{font-weight:800}
+    .email-notification-item dd{min-width:0;margin:0;overflow-wrap:anywhere}
+
+    .email-notification-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid rgba(148,163,184,.35);
+    }
+
+    .email-status-tag{
+      display:inline-flex;
+      align-items:center;
+      min-height:25px;
+      padding:4px 9px;
+      border:1px solid transparent;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:850;
+      letter-spacing:.02em;
+    }
+
+    .email-status-tag.pending{
+      border-color:#facc15;
+      background:#fef3c7;
+      color:#92400e;
+    }
+
+    .email-status-tag.read{
+      border-color:#93c5fd;
+      background:#dbeafe;
+      color:#1e40af;
+    }
+
+    .email-status-tag.responded{
+      border-color:#86efac;
+      background:#dcfce7;
+      color:#166534;
+    }
+
+    .email-status-tag.acknowledged{
+      border-color:#c084fc;
+      background:#f3e8ff;
+      color:#6b21a8;
+    }
+
+    .email-notification-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:7px;
+      flex-wrap:wrap;
+    }
+
+    .email-status-editor{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#475569;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .email-status-editor select{
+      min-height:32px;
+      max-width:150px;
+      padding:5px 28px 5px 9px;
+      border:1px solid #94a3b8;
+      border-radius:7px;
+      background:#fff;
+      color:#172033;
+      font:inherit;
+      cursor:pointer;
+    }
+
+    .email-status-editor select.pending{border-color:#facc15;background:#fffbeb;color:#92400e}
+    .email-status-editor select.read{border-color:#93c5fd;background:#eff6ff;color:#1e40af}
+    .email-status-editor select.responded{border-color:#86efac;background:#f0fdf4;color:#166534}
+    .email-status-editor select.acknowledged{border-color:#c084fc;background:#faf5ff;color:#6b21a8}
+
+    .email-status-editor select:disabled{
+      opacity:.6;
+      cursor:wait;
+    }
+
+    .email-mark-read-button{
+      min-height:32px;
+      padding:6px 10px;
+      border:1px solid #94a3b8;
+      border-radius:7px;
+      background:#fff;
+      color:var(--navy);
+      cursor:pointer;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .email-mark-read-button:hover{
+      border-color:var(--navy-2);
+      background:#f8fafc;
+    }
+
+    .email-mark-read-button:disabled{
+      opacity:.6;
+      cursor:wait;
+    }
+
+    .email-mark-read-button.acknowledged-action{
+      border-color:#c084fc;
+      background:#f3e8ff;
+      color:#6b21a8;
+    }
+
+    .email-notification-empty{
+      padding:28px 18px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .email-status-summary{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .email-summary-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-height:32px;
+      padding:6px 11px;
+      border:1px solid transparent;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .email-summary-tag strong{font-size:14px}
+
+    .email-summary-tag.pending{
+      border-color:#facc15;
+      background:#fef3c7;
+      color:#92400e;
+    }
+
+    .email-summary-tag.read{
+      border-color:#93c5fd;
+      background:#dbeafe;
+      color:#1e40af;
+    }
+
+    .email-summary-tag.responded{
+      border-color:#86efac;
+      background:#dcfce7;
+      color:#166534;
+    }
+
+    .email-summary-tag.acknowledged{
+      border-color:#c084fc;
+      background:#f3e8ff;
+      color:#6b21a8;
+    }
+
+    .email-integration-status{
+      margin-top:12px;
+      padding:11px 13px;
+      border:1px solid #cbd5e1;
+      border-radius:9px;
+      background:#f8fafc;
+      color:#475569;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .email-integration-status.online{
+      border-color:#86efac;
+      background:#f0fdf4;
+      color:#166534;
+    }
+
+    .email-integration-status.error{
+      border-color:#fca5a5;
+      background:#fef2f2;
+      color:#991b1b;
+    }
+
+    .email-notifications-dashboard-list{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .email-notifications-dashboard-list .email-notification-item{
+      border:1px solid #d8dee8;
+      border-radius:10px;
+    }
+
+    .email-notifications-dashboard-list .email-notification-item.pending{
+      border-color:#facc15;
+    }
+
+    .email-notifications-dashboard-list .email-notification-item.read{
+      border-color:#60a5fa;
+    }
+
+    .email-notifications-dashboard-list .email-notification-item.responded{
+      border-color:#86efac;
+    }
+
+    .email-notifications-dashboard-list .email-notification-item.acknowledged{
+      border-color:#c084fc;
+    }
+
+    .email-alert-toast{
+      position:fixed;
+      top:20px;
+      right:20px;
+      z-index:3600;
+      width:min(390px,calc(100vw - 32px));
+      padding:17px 18px;
+      border:1px solid #93c5fd;
+      border-left:6px solid #2563eb;
+      border-radius:12px;
+      background:#fff;
+      color:#1e293b;
+      box-shadow:0 22px 60px rgba(15,39,71,.28);
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(-12px);
+      transition:.22s;
+    }
+
+    .email-alert-toast.show{
+      opacity:1;
+      visibility:visible;
+      transform:none;
+    }
+
+    .email-alert-toast strong{
+      display:block;
+      margin-bottom:9px;
+      color:var(--navy);
+      font-size:15px;
+    }
+
+    .email-alert-toast p{
+      margin:4px 0 0;
+      font-size:13px;
+      line-height:1.45;
+      overflow-wrap:anywhere;
+    }
+
+    .email-alert-toast p b{color:var(--navy)}
+
+    .email-alert-toast-close{
+      position:absolute;
+      top:8px;
+      right:8px;
+      display:grid;
+      place-items:center;
+      width:30px;
+      height:30px;
+      border:0;
+      border-radius:7px;
+      background:transparent;
+      color:#64748b;
+      cursor:pointer;
+      font-size:19px;
+    }
+
+    .email-settings-modal{
+      position:fixed;
+      inset:0;
+      z-index:3500;
+      display:grid;
+      place-items:center;
+      padding:20px;
+      background:rgba(2,8,23,.72);
+      opacity:0;
+      visibility:hidden;
+      transition:.2s;
+      backdrop-filter:blur(4px);
+    }
+
+    .email-settings-modal.show{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .email-settings-dialog{
+      width:min(520px,100%);
+      max-height:calc(100dvh - 40px);
+      overflow-y:auto;
+      padding:26px;
+      border:1px solid rgba(255,255,255,.24);
+      border-radius:17px;
+      background:#fff;
+      box-shadow:0 28px 80px rgba(0,0,0,.38);
+      transform:translateY(12px) scale(.98);
+      transition:.2s;
+    }
+
+    .email-settings-modal.show .email-settings-dialog{transform:none}
+
+    .email-settings-dialog h3{
+      margin:0 0 6px;
+      color:var(--navy);
+      font-size:21px;
+    }
+
+    .email-settings-dialog>p{
+      margin:0 0 20px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .email-settings-readonly{
+      background:#f1f5f9;
+      color:#475569;
+    }
+
+    .email-settings-security{
+      margin:14px 0 0;
+      padding:11px 13px;
+      border-radius:9px;
+      background:#eff6ff;
+      color:#1e3a8a;
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .email-settings-result{
+      min-height:20px;
+      margin-top:12px;
+      color:#b42318;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .email-settings-dialog .actions .btn{flex:1}
+
     .grid{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
@@ -179,6 +762,11 @@
     }
 
     textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .sbar-long-text{
       min-height:90px;
       resize:vertical;
     }
@@ -330,6 +918,50 @@
       line-height:1.6;
     }
 
+    .shift-productivity-summary{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin:0 0 16px;
+    }
+
+    .shift-productivity-card{
+      padding:13px 14px;
+      border:1px solid #cbd5e1;
+      border-radius:10px;
+      background:#f8fafc;
+    }
+
+    .shift-productivity-card span{
+      display:block;
+      margin-bottom:5px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .shift-productivity-card strong{
+      display:block;
+      color:var(--navy);
+      font-size:22px;
+      line-height:1.1;
+    }
+
+    .shift-census-history{
+      margin:0 0 18px;
+    }
+
+    .shift-census-history h4,
+    .shift-records-heading{
+      margin:0 0 9px;
+      color:var(--navy);
+      font-size:14px;
+    }
+
+    .productivity-history-table{
+      min-width:820px;
+    }
+
     .table-wrap{
       overflow-x:auto;
       border:1px solid var(--line);
@@ -467,6 +1099,7 @@
       nav button{min-width:max-content}
       .grid{grid-template-columns:repeat(2,1fr)}
       .form-grid{grid-template-columns:1fr 1fr}
+      .shift-productivity-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
     }
 
     @media(max-width:650px){
@@ -476,8 +1109,10 @@
       .grid{grid-template-columns:1fr}
       .form-grid{grid-template-columns:1fr}
       .record-grid{grid-template-columns:1fr}
+      .shift-productivity-summary{grid-template-columns:1fr}
     }
-  <style>.calendar-export-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.calendar-export-actions .btn{min-width:190px}    .calendar-export-actions .btn{min-width:190px}
+  </style>
+  <style>.calendar-export-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.calendar-export-actions .btn{min-width:190px}
     .hours-summary-card{
       position:relative;
     }
@@ -509,23 +1144,545 @@
       display:inline-flex;
     }
 </style>
+<style>
+  .cloud-bar{position:fixed;right:16px;bottom:16px;z-index:900;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;box-shadow:0 6px 24px rgba(15,39,71,.18);font-size:12px;color:var(--muted)}
+  .cloud-bar.online{color:#166534;border-color:#86efac}.cloud-bar.error{color:#991b1b;border-color:#fca5a5}
+</style>
+<style>
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{overflow-x:hidden}
+  button,input,select,textarea{touch-action:manipulation}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(79,142,220,.45);outline-offset:2px}
+  .mobile-header,.menu-backdrop,.calendar-mobile-agenda{display:none}
+  .brand-logo-box{display:flex;align-items:center;justify-content:center;margin-bottom:15px;padding:9px 10px;border-radius:10px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+  .brand-logo-box img{display:block;width:100%;max-width:210px;height:auto}
+
+  .dashboard-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}.dashboard-panel-header h3{margin-bottom:4px}.dashboard-panel-header p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+  .dashboard-notes{min-height:170px;line-height:1.55}.note-save-meta{align-self:center;color:var(--muted);font-size:12px}
+  .standard-message-form{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(0,1.3fr);gap:12px;align-items:start}.standard-message-form .message-text-field{grid-row:span 2}.standard-message-form textarea{min-height:112px}
+  .standard-messages-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.standard-message-card{display:flex;flex-direction:column;min-width:0;padding:15px;border:1px solid var(--line);border-radius:11px;background:#f8fafc}.standard-message-title{margin:0 0 8px;color:var(--navy);font-size:15px;line-height:1.35}.standard-message-text{flex:1;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:#374151;font-size:13px;line-height:1.55}.standard-message-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;padding-top:12px;border-top:1px solid #e2e8f0}.standard-message-actions .btn{min-height:38px;padding:8px 11px;font-size:12px}.standard-messages-empty{grid-column:1/-1;padding:24px;border:1px dashed #cbd5e1;border-radius:10px;text-align:center;color:var(--muted);font-size:13px}
+  .reminder-modal{position:fixed;inset:0;z-index:3200;display:grid;place-items:center;padding:20px;background:rgba(2,8,23,.7);opacity:0;visibility:hidden;transition:.2s;backdrop-filter:blur(4px)}.reminder-modal.show{opacity:1;visibility:visible}.reminder-dialog{width:min(430px,100%);padding:30px;border:1px solid rgba(255,255,255,.25);border-radius:18px;background:#fff;text-align:center;box-shadow:0 28px 80px rgba(0,0,0,.38);transform:translateY(12px) scale(.98);transition:.2s}.reminder-modal.show .reminder-dialog{transform:none}.reminder-symbol{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 16px;border-radius:50%;background:#e8eef6;color:var(--navy);font-size:28px;font-weight:900}.reminder-eyebrow{display:block;margin-bottom:7px;color:var(--navy-2);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.reminder-dialog h3{margin:0 0 9px;color:var(--navy);font-size:22px}.reminder-dialog p{margin:0 0 22px;color:#475569;font-size:15px;line-height:1.6}.reminder-dialog .btn{width:100%;min-height:48px}
+
+  @media(max-width:1024px){
+    body.menu-open{overflow:hidden}
+    .mobile-header{
+      position:sticky;top:0;z-index:1100;display:flex;align-items:center;gap:12px;
+      min-height:64px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+      background:linear-gradient(90deg,var(--navy),var(--navy-2));color:#fff;
+      box-shadow:0 4px 18px rgba(9,26,48,.22)
+    }
+    .mobile-menu-button{width:44px;height:44px;display:grid;place-items:center;flex:0 0 44px;border:1px solid rgba(255,255,255,.24);border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font-size:24px;cursor:pointer}
+    .mobile-brand-logo{display:flex;align-items:center;justify-content:center;width:124px;flex:0 0 124px;padding:5px 7px;border-radius:7px;background:#fff}.mobile-brand-logo img{display:block;width:100%;height:auto}
+    .mobile-header-copy{min-width:0;flex:1}.mobile-header-copy span{display:block;color:#dbeafe;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mobile-header .email-notification-button{width:42px;height:42px;min-width:42px;border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;box-shadow:none}
+    .app{display:block!important;min-height:auto}
+    aside{
+      position:fixed!important;inset:0 auto 0 0;z-index:1300;width:min(330px,88vw);height:100dvh;
+      padding:calc(24px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
+      overflow-y:auto;overscroll-behavior:contain;transform:translateX(-105%);transition:transform .24s ease;
+      box-shadow:18px 0 48px rgba(0,0,0,.26)
+    }
+    aside.mobile-open{transform:translateX(0)}
+    aside .brand{padding-right:44px}
+    nav{display:block!important;overflow:visible!important}
+    nav button{min-width:0!important;min-height:48px;margin-bottom:5px;padding:13px 14px;font-size:15px}
+    .menu-backdrop{position:fixed;inset:0;z-index:1250;display:block;background:rgba(2,8,23,.58);opacity:0;visibility:hidden;transition:.2s;backdrop-filter:blur(2px)}
+    body.menu-open .menu-backdrop{opacity:1;visibility:visible}
+    main{width:100%;max-width:100%;padding:22px}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .table-wrap,.calendar-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
+    .table-wrap{position:relative}
+    .records-table{min-width:920px}
+  }
+
+  @media(max-width:700px){
+    .mobile-header{min-height:60px;padding-left:12px;padding-right:12px}
+    main{padding:12px 12px calc(88px + env(safe-area-inset-bottom))}
+    .topbar{flex-direction:column;gap:12px;margin-bottom:14px}
+    .topbar-actions{width:100%}.topbar-actions>.email-notification-button{display:none}.topbar-actions .shift-chip{flex:1}
+    .email-notification-popover{position:fixed;top:calc(68px + env(safe-area-inset-top));right:10px;left:10px;width:auto;max-height:calc(100dvh - 88px);border-radius:12px}
+    .email-notification-list{max-height:calc(100dvh - 185px)}
+    .email-notification-footer{align-items:flex-start;flex-direction:column}
+    .email-notification-actions{width:100%;justify-content:flex-start}
+    .email-status-editor{width:100%;justify-content:space-between}
+    .email-status-editor select{max-width:none;flex:1}
+    .email-notifications-dashboard-list{grid-template-columns:1fr}
+    .email-alert-toast{top:calc(72px + env(safe-area-inset-top));right:12px;left:12px;width:auto}
+    .email-settings-modal{padding:12px}.email-settings-dialog{max-height:calc(100dvh - 24px);padding:22px 18px;border-radius:14px}
+    .topbar h2{font-size:21px;line-height:1.2}.topbar p{font-size:13px;line-height:1.45}
+    .shift-chip{width:100%;min-width:0;padding:11px 13px}
+    .panel{padding:14px;border-radius:12px;margin-bottom:12px}
+    .panel h3{font-size:17px;line-height:1.3;margin-bottom:12px}
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:14px}
+    .stat{min-width:0;padding:12px;border-radius:10px}.stat .label{font-size:11px;line-height:1.3}.stat .value{font-size:24px}
+    .form-grid{display:block}.form-grid>div{margin-bottom:12px}.form-grid>div:last-child{margin-bottom:0}
+    input,select,textarea{min-height:46px;padding:11px 12px;border-radius:9px;font-size:16px}
+    textarea{min-height:110px}
+    .actions{display:flex;gap:8px;margin-top:12px}.actions>.btn{flex:1 1 calc(50% - 4px);min-height:46px;padding:11px 12px}
+    .btn{min-height:44px;font-size:14px}
+    .record-grid{grid-template-columns:1fr;gap:6px}.record{padding:12px}.record-footer{justify-content:stretch;flex-wrap:wrap}.record-footer .btn{flex:1 1 130px}
+    .module-card{padding:12px;border-left-width:6px}.module-title{align-items:flex-start;line-height:1.35}
+    .report-header{flex-direction:column;gap:10px}.report-header .actions{width:100%}
+    .table-wrap{border-radius:8px;box-shadow:inset -18px 0 18px -22px rgba(15,39,71,.55)}
+    .records-table{min-width:860px}.records-table th,.records-table td{padding:11px 10px}
+    .table-actions{white-space:normal;flex-wrap:wrap}.table-actions .btn{min-height:40px}
+    .sbar-box{min-height:320px;max-height:58vh;padding:12px;font-size:12px;line-height:1.5}
+    .calendar-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.calendar-toolbar h3{grid-column:1/-1;grid-row:1;text-align:center}.calendar-toolbar .btn{width:100%;min-width:0}
+    .calendar-scroll{display:none}.calendar-mobile-agenda{display:block}
+    .calendar-mobile-empty{padding:22px 10px;text-align:center;color:var(--muted);font-size:13px}
+    .calendar-mobile-day{margin-bottom:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+    .calendar-mobile-date{padding:9px 11px;background:#e8eef6;color:var(--navy);font-size:13px;font-weight:800;text-transform:capitalize}
+    .calendar-mobile-day .calendar-event{display:block;width:calc(100% - 18px);margin:9px;min-height:44px;padding:10px;border:0;text-align:left;font-size:12px}
+    .calendar-legend{display:grid;grid-template-columns:1fr;gap:7px}
+    .calendar-export-actions{display:grid;grid-template-columns:1fr;gap:8px}.calendar-export-actions .btn{width:100%;min-width:0}
+    .cloud-bar{right:10px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:calc(100vw - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .toast{left:12px;right:12px;bottom:calc(64px + env(safe-area-inset-bottom));text-align:center}
+    .dashboard-panel-header{display:block}.dashboard-panel-header p{margin-bottom:10px}.standard-message-form{display:block}.standard-message-form>div{margin-bottom:12px}.standard-messages-list{grid-template-columns:1fr}.standard-message-actions{display:grid;grid-template-columns:1fr 1fr}.standard-message-actions .btn{width:100%}.reminder-modal{padding:12px}.reminder-dialog{padding:24px 20px;border-radius:15px}
+  }
+
+  @media(max-width:430px){
+    .actions{display:grid;grid-template-columns:1fr}.actions>.btn{width:100%}
+    .record-footer{display:grid;grid-template-columns:1fr}.record-footer .btn{width:100%}
+    .topbar h2{font-size:20px}
+    .mobile-brand-logo{width:108px;flex-basis:108px}.mobile-header-copy span{font-size:11px}
+  }
+
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+  .bed-census-panel{margin-top:18px}
+  .bed-census-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .bed-census-meta{min-width:250px;padding:11px 13px;border:1px solid #d8dee8;border-radius:10px;background:#f8fafc;color:#475569;font-size:12px;line-height:1.5}
+  .bed-census-meta strong{display:block;margin-bottom:3px;color:var(--navy);font-size:13px}
+  .bed-census-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .bed-census-summary-section{overflow:hidden;border:1px solid #cfd8e3;border-radius:12px;background:#fff}
+  .bed-census-summary-section h4{margin:0;padding:11px 14px;background:var(--navy);color:#fff;font-size:14px}
+  .bed-census-result-table,.bed-census-form-table{width:100%;border-collapse:collapse}
+  .bed-census-result-table th,.bed-census-result-table td,.bed-census-form-table th,.bed-census-form-table td{padding:10px 12px;border-top:1px solid #d8dee8;text-align:left}
+  .bed-census-result-table th,.bed-census-form-table th{background:#eef3f8;color:var(--navy);font-size:12px;text-transform:uppercase}
+  .bed-census-result-table td:last-child{width:160px;text-align:center}
+  .bed-availability-tag{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:28px;padding:0 12px;border:1px solid transparent;border-radius:999px;font-size:13px;font-weight:800;line-height:1}
+  .bed-availability-tag.available{background:#dcfce7;color:#166534;border-color:#86efac}
+  .bed-availability-tag.unavailable{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+  .bed-availability-tag.not-informed{min-width:auto;background:#f1f5f9;color:#64748b;border-color:#cbd5e1;font-weight:700}
+  .bed-census-observations-result{min-height:52px;margin-top:8px;padding:12px;border:1px solid #d8dee8;border-radius:10px;background:#f8fafc;color:#334155;white-space:pre-wrap}
+  .bed-census-modal{position:fixed;inset:0;z-index:3300;display:grid;place-items:center;padding:20px;background:rgba(2,8,23,.72);opacity:0;visibility:hidden;transition:.2s;backdrop-filter:blur(4px)}
+  .bed-census-modal.show{opacity:1;visibility:visible}
+  .bed-census-dialog{width:min(920px,100%);max-height:92vh;overflow:auto;padding:24px;border-radius:18px;background:#fff;box-shadow:0 28px 80px rgba(0,0,0,.38)}
+  .bed-census-dialog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}
+  .bed-census-dialog-header h3{margin:0 0 5px;color:var(--navy)}
+  .bed-census-form-meta{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:12px}
+  .bed-census-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .bed-census-form-section{overflow:hidden;border:1px solid #cfd8e3;border-radius:12px;background:#fff}
+  .bed-census-form-section h4{margin:0;padding:11px 14px;background:var(--navy);color:#fff;font-size:14px}
+  .bed-census-form-table input{min-width:90px;text-align:center}
+  .bed-census-dialog-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .hospub-module-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+  .hospub-module-header h3{margin-bottom:5px}
+  .hospub-module-actions{display:grid;width:min(760px,100%);grid-template-columns:repeat(3,minmax(190px,1fr));align-items:stretch;gap:9px}
+  .hospub-module-actions>.bed-census-meta{display:flex;min-height:56px;flex-direction:column;justify-content:center;box-sizing:border-box}
+  .hospub-module-actions>.btn{min-height:56px;border-radius:10px}
+  .hospub-connection-status{display:inline-flex;align-items:center;justify-content:center;min-height:56px;padding:10px 13px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;color:#475569;font-size:12px;font-weight:800;box-sizing:border-box}
+  .hospub-connection-status::before{content:"";width:8px;height:8px;margin-right:7px;border-radius:50%;background:#94a3b8}
+  .hospub-connection-status.connected{border-color:#86efac;background:#f0fdf4;color:#166534}
+  .hospub-connection-status.connected::before{background:#22c55e}
+  .hospub-connection-status.scanning{border-color:#93c5fd;background:#eff6ff;color:#1e40af}
+  .hospub-connection-status.scanning::before{background:#3b82f6;animation:hospubPulse 1s infinite alternate}
+  .hospub-connection-status.warning{border-color:#facc15;background:#fffbeb;color:#92400e}
+  .hospub-connection-status.warning::before{background:#eab308}
+  .hospub-connection-status.error{border-color:#fca5a5;background:#fef2f2;color:#991b1b}
+  .hospub-connection-status.error::before{background:#ef4444}
+  @keyframes hospubPulse{to{opacity:.3}}
+  .hospub-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+  .hospub-summary-card{display:flex;align-items:center;gap:13px;min-height:102px;padding:17px;border:1px solid #cfd8e3;border-radius:12px;background:#fff}
+  .hospub-summary-card>.hospub-summary-icon{display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px;align-self:center;border-radius:50%;background:#e8eef6;color:var(--navy);line-height:0}
+  .hospub-summary-card>.hospub-summary-icon svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision}
+  .hospub-summary-card>div>span{display:block;color:#475569;font-size:12px;font-weight:750}
+  .hospub-summary-card>div>strong{display:block;margin-top:3px;color:var(--navy);font-size:29px;line-height:1}
+  .hospub-sector-panel{overflow:hidden;border:1px solid #cfd8e3;border-radius:12px;background:#fff}
+  .hospub-sector-panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:15px 17px;border-bottom:1px solid #d8dee8}
+  .hospub-sector-panel-header h4{margin:0;color:var(--navy);font-size:17px}
+  .hospub-sector-table{width:100%;min-width:850px;border-collapse:collapse}
+  .hospub-sector-table th,.hospub-sector-table td{padding:11px 13px;border-bottom:1px solid #d8dee8;text-align:left;font-size:13px}
+  .hospub-sector-table th{background:#eef3f8;color:var(--navy);font-size:11px;text-transform:uppercase}
+  .hospub-sector-table td:not(:first-child),.hospub-sector-table th:not(:first-child){text-align:center}
+  .hospub-sector-table tr:last-child td{border-bottom:0}
+  .hospub-sector-table tbody tr.hospub-row-pa td{background:#fffbeb}
+  .hospub-sector-table tbody tr.hospub-row-pa td:first-child{box-shadow:inset 5px 0 0 #eab308}
+  .hospub-sector-table tbody tr.hospub-row-red td{background:#fef2f2}
+  .hospub-sector-table tbody tr.hospub-row-red td:first-child{box-shadow:inset 5px 0 0 #ef4444}
+  .hospub-sector-table tbody tr.hospub-row-uti td{background:#fff7ed}
+  .hospub-sector-table tbody tr.hospub-row-uti td:first-child{box-shadow:inset 5px 0 0 #f97316}
+  .hospub-sector-table tfoot td{border-top:2px solid #9aabc0;background:#e8eef6;color:var(--navy);font-weight:900}
+  .hospub-sector-table tfoot td:first-child{letter-spacing:.04em;text-transform:uppercase}
+  .hospub-total-number{display:inline-flex;align-items:center;justify-content:center;min-width:62px;min-height:27px;padding:4px 9px;border:1px solid var(--navy);border-radius:7px;background:var(--navy);color:#fff;font-size:12px;font-weight:900}
+  .hospub-sector-name{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-width:0}
+  .hospub-sector-name strong{min-width:0}
+  .hospub-care-tag{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:3px 8px;border:1px solid transparent;border-radius:999px;font-size:10px;font-weight:900;line-height:1;letter-spacing:.035em;white-space:nowrap}
+  .hospub-care-tag.infecto{border-color:#c4b5fd;background:#ede9fe;color:#5b21b6}
+  .hospub-care-tag.cm{border-color:#93c5fd;background:#dbeafe;color:#1e40af}
+  .hospub-care-tag.mixed{border-color:#a5b4fc;background:linear-gradient(90deg,#ede9fe 0 50%,#dbeafe 50%);color:#312e81}
+  .hospub-care-tag.ppl{border-color:#f0abfc;background:#fae8ff;color:#86198f}
+  .hospub-care-select{width:145px;min-height:34px;padding:6px 28px 6px 8px;border-radius:7px;font-size:11px;font-weight:800}
+  .hospub-capacity-input{width:92px;min-height:36px;padding:7px;text-align:center;font-size:13px}
+  .hospub-capacity-value{font-weight:800;color:#334155}
+  .hospub-metric-tag{display:inline-flex;align-items:center;justify-content:center;min-width:62px;min-height:27px;padding:4px 9px;border:1px solid transparent;border-radius:7px;font-size:12px;font-weight:850}
+  .hospub-metric-tag.available{border-color:#86efac;background:#dcfce7;color:#166534}
+  .hospub-metric-tag.warning{border-color:#facc15;background:#fef3c7;color:#92400e}
+  .hospub-metric-tag.full{border-color:#fca5a5;background:#fee2e2;color:#991b1b}
+  .hospub-metric-tag.unknown{border-color:#cbd5e1;background:#f1f5f9;color:#64748b;font-weight:700}
+  .hospub-rate-alert{display:inline-flex;align-items:center;justify-content:center;margin-right:5px;color:#b91c1c;font-size:15px;line-height:1}
+  .hospub-privacy-note{display:flex;align-items:flex-start;gap:9px;margin-top:16px;padding:12px 14px;border:1px solid #bfdbfe;border-radius:9px;background:#eff6ff;color:#1e3a8a;font-size:12px;line-height:1.5}
+  .hospub-privacy-note strong{font-size:16px;line-height:1}
+  .hospub-capacity-help{margin:0;color:#64748b;font-size:12px}
+  .hospub-install-note{margin-top:10px;color:#64748b;font-size:12px;line-height:1.5}
+  @media(max-width:900px){
+    .bed-census-summary-grid,.bed-census-form-grid{grid-template-columns:1fr}
+    .bed-census-form-meta{grid-template-columns:1fr}
+    .hospub-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(max-width:700px){
+    .bed-census-meta{width:100%;min-width:0}
+    .bed-census-result-table th,.bed-census-result-table td,.bed-census-form-table th,.bed-census-form-table td{padding:9px 8px}
+    .bed-census-result-table td:last-child{width:120px}
+    .bed-census-dialog{padding:16px;border-radius:14px}
+    .bed-census-dialog-header{display:block}.bed-census-dialog-header .btn{width:100%;margin-top:10px}
+    .bed-census-dialog-actions{display:grid;grid-template-columns:1fr}.bed-census-dialog-actions .btn{width:100%}
+    .hospub-module-actions{width:100%;grid-template-columns:1fr}
+    .hospub-module-actions>.bed-census-meta,.hospub-module-actions>.btn,.hospub-connection-status{width:100%;min-width:0}
+  }
+  @media(max-width:520px){.hospub-summary-grid{grid-template-columns:1fr}.hospub-summary-card{min-height:88px}}
+
+
+  .dashboard-record-stats{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+  }
+  .total-records-stat{
+    border-color:#9fb3ca;
+    background:linear-gradient(145deg,#ffffff,#f0f5fa);
+  }
+  .total-records-stat .label{
+    color:var(--navy);
+    font-weight:700;
+  }
+  .total-records-stat .value{
+    color:var(--navy-2);
+  }
+  @media(max-width:1250px){
+    .dashboard-record-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  @media(max-width:800px){
+    .dashboard-record-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(max-width:500px){
+    .dashboard-record-stats{grid-template-columns:1fr}
+  }
+
+
+  .clinic-name-cell{display:flex;align-items:center;gap:10px;min-width:0}
+  .clinic-icon{display:inline-grid;place-items:center;width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:#e8eef6;color:var(--navy);font-size:16px;line-height:1;border:1px solid #c8d4e2}
+  .clinic-icon.uti{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
+  .clinic-icon.isolation{background:#fff7d6;color:#92400e;border-color:#f4d06f}
+  .clinic-icon.male-bed{background:#eaf3ff;color:#1e3a8a;border-color:#93c5fd}
+  .clinic-icon.female-bed{background:#fce7f3;color:#db2777;border-color:#f9a8d4}
+  .clinic-name-text{min-width:0;overflow-wrap:anywhere}
+
+</style>
+
+<style id="sidebar-menu-icons-style">
+  nav button{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    min-height:44px;
+    padding:11px 12px;
+    position:relative;
+    overflow:hidden;
+    transition:background-color .18s ease,color .18s ease,transform .18s ease;
+  }
+
+  nav button:hover{
+    transform:translateX(2px);
+  }
+
+  nav button.active{
+    background:linear-gradient(90deg,rgba(79,142,220,.34),rgba(79,142,220,.16));
+    box-shadow:inset 3px 0 0 #6fb1f4;
+  }
+
+  .nav-icon{
+    width:19px;
+    height:19px;
+    flex:0 0 19px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    color:currentColor;
+  }
+
+  .nav-icon svg{
+    display:block;
+    width:19px;
+    height:19px;
+    fill:none;
+    stroke:currentColor;
+    stroke-width:1.9;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  .nav-label{
+    min-width:0;
+    line-height:1.25;
+    font-weight:600;
+  }
+
+  @media(max-width:1024px){
+    nav button{
+      gap:12px;
+      min-height:49px;
+      padding:13px 14px;
+    }
+
+    .nav-icon,
+    .nav-icon svg{
+      width:20px;
+      height:20px;
+      flex-basis:20px;
+    }
+  }
+</style>
+
+
+<style id="scir-modules-chart-style">
+  #mainSidebar{
+    display:flex;
+    flex-direction:column;
+  }
+
+  #mainSidebar nav{
+    flex:1 0 auto;
+  }
+
+  .records-chart-panel{
+    overflow:hidden;
+  }
+
+  .records-chart-layout{
+    display:grid;
+    grid-template-columns:minmax(220px,.8fr) minmax(300px,1.2fr);
+    align-items:center;
+    gap:28px;
+    padding:8px 10px 4px;
+  }
+
+  .records-donut-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:260px;
+  }
+
+  .records-donut{
+    --chart-yellow:0deg;
+    --chart-blue:0deg;
+    --chart-green:0deg;
+    width:230px;
+    height:230px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:conic-gradient(
+      var(--yellow) 0deg var(--chart-yellow),
+      var(--blue) var(--chart-yellow) var(--chart-blue),
+      var(--green) var(--chart-blue) var(--chart-green),
+      var(--red) var(--chart-green) 360deg
+    );
+    box-shadow:0 10px 28px rgba(15,39,71,.12);
+    position:relative;
+  }
+
+  .records-donut::before{
+    content:"";
+    position:absolute;
+    inset:24%;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:inset 0 0 0 1px #e2e8f0;
+  }
+
+  .records-donut.empty{
+    background:conic-gradient(#e5e7eb 0deg 360deg);
+  }
+
+  .records-donut-center{
+    position:relative;
+    z-index:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:var(--navy);
+  }
+
+  .records-donut-center strong{
+    font-size:34px;
+    line-height:1;
+  }
+
+  .records-donut-center span{
+    margin-top:5px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .records-chart-legend{
+    display:grid;
+    gap:4px;
+  }
+
+  .chart-legend-row{
+    display:grid;
+    grid-template-columns:14px minmax(0,1fr) auto;
+    align-items:center;
+    gap:10px;
+    padding:12px 4px;
+    border-bottom:1px solid #e5e7eb;
+    color:#334155;
+    font-size:13px;
+  }
+
+  .chart-legend-row:last-child{
+    border-bottom:0;
+  }
+
+  .chart-legend-row strong{
+    color:var(--navy);
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .chart-dot{
+    width:11px;
+    height:11px;
+    border-radius:50%;
+  }
+
+  .chart-dot.yellow{background:var(--yellow)}
+  .chart-dot.blue{background:var(--blue)}
+  .chart-dot.green{background:var(--green)}
+  .chart-dot.red{background:var(--red)}
+
+  .chart-report-action{
+    justify-content:center;
+    padding-top:10px;
+    border-top:1px solid #e5e7eb;
+  }
+
+  .chart-report-action .btn{
+    min-width:240px;
+  }
+
+  @media(max-width:900px){
+    .records-chart-layout{
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .records-donut-wrap{
+      min-height:230px;
+    }
+  }
+
+  @media(max-width:700px){
+    .records-chart-layout{
+      padding-left:0;
+      padding-right:0;
+    }
+
+    .records-donut{
+      width:205px;
+      height:205px;
+    }
+
+    .chart-legend-row{
+      grid-template-columns:13px minmax(0,1fr);
+    }
+
+    .chart-legend-row strong{
+      grid-column:2;
+      justify-self:start;
+      margin-top:-5px;
+    }
+
+    .chart-report-action .btn{
+      width:100%;
+      min-width:0;
+    }
+  }
+</style>
+
 </head>
 <body>
+  <div class="cloud-bar" id="cloudStatus">Conectando à base…</div>
+  <header class="mobile-header">
+    <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Abrir menu" aria-controls="mainSidebar" aria-expanded="false">☰</button>
+    <div class="mobile-brand-logo"><img src="assets/logo-cemetron.png" alt="CEMETRON"></div>
+    <div class="mobile-header-copy"><span id="mobilePageTitle">Dashboard</span></div>
+    <button class="email-notification-button" type="button" data-email-notifications-toggle aria-label="Abrir notificações de e-mail" aria-controls="emailNotificationPopover" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+      <span class="email-notification-badge hidden" id="emailNotificationBadgeMobile">0</span>
+    </button>
+  </header>
+  <button class="menu-backdrop" id="menuBackdrop" type="button" aria-label="Fechar menu"></button>
 <div class="app">
-  <aside>
+  <aside id="mainSidebar">
     <div class="brand">
+      <div class="brand-logo-box"><img src="assets/logo-cemetron.png" alt="CEMETRON — Centro de Medicina Tropical de Rondônia"></div>
       <h1>NIR CEMETRON</h1>
-      <p>Controle Interno de Regulações<br>Versão final corrigida v23 — HTML local</p>
+      <p>Controle Interno de Regulações<br>Versão integrada em nuvem</p>
     </div>
     <nav>
-      <button class="active" data-view="dashboard">Dashboard</button>
-      <button data-view="registros">Novo registro</button>
-      <button data-view="relatorioPlantao">Relatório do plantão</button>
-      <button data-view="historicoPlantoes">Histórico de plantões</button>
-      <button data-view="calendarioPlantoes">Meus plantões</button>
-      <button id="authorizationNavButton" data-view="autorizacaoTransferencia" class="hidden">Autorização de transferência</button>
-      <button data-view="sbar">Relatório SBAR</button>
+      <button class="active" data-view="dashboard">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg>
+      </span><span class="nav-label">Dashboard</span></button>
+      <button data-view="registros">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M9 2h6v4H9z"/><path d="M12 10v6M9 13h6"/></svg>
+      </span><span class="nav-label">Novo registro</span></button>
+      <button data-view="relatorioPlantao">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/></svg>
+      </span><span class="nav-label">Relatório do plantão</span></button>
+      <button data-view="historicoPlantoes">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M12 8v4l2.5 1.5"/></svg>
+      </span><span class="nav-label">Histórico de plantões</span></button>
+      <button data-view="calendarioPlantoes">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M7.5 14h.01M12 14h.01M16.5 14h.01M7.5 18h.01M12 18h.01"/></svg>
+      </span><span class="nav-label">Meus plantões</span></button>
+      <button id="authorizationNavButton" data-view="autorizacaoTransferencia" class="hidden">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M7 7h11l-3-3M18 7l-3 3"/><path d="M17 17H6l3 3M6 17l3-3"/></svg>
+      </span><span class="nav-label">Autorização de transferência</span></button>
+      <button data-view="sbar">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 18.5 3.5 21l3.8-1.1A8.5 8.5 0 1 0 5 18.5Z"/><path d="M8 9.5h8M8 13h5"/></svg>
+      </span><span class="nav-label">Relatório SBAR</span></button>
+
+      <button data-view="ocupacaoHospub">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19V9M4 15h16v4M7 15v-4h5a3 3 0 0 1 3 3v1M4 19v2M20 15v6"/><path d="M17 7h4M19 5v4"/></svg>
+      </span><span class="nav-label">Ocupação Hospub</span></button>
+
+      <button data-view="mensagensPadrao">
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+      </span><span class="nav-label">Mensagens padrão</span></button>
     </nav>
+
   </aside>
 
   <main>
@@ -534,9 +1691,41 @@
         <h2>Controle Interno de Regulações</h2>
         <p>Registro, acompanhamento e passagem de plantão do NIR CEMETRON.</p>
       </div>
-      <div class="shift-chip">
-        <strong>Plantão atual</strong><br>
-        <span id="shiftInfo">Não iniciado</span>
+      <div class="topbar-actions">
+        <button class="email-notification-button" type="button" data-email-notifications-toggle aria-label="Abrir notificações de e-mail" aria-controls="emailNotificationPopover" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          <span class="email-notification-badge hidden" id="emailNotificationBadge">0</span>
+        </button>
+        <div class="shift-chip">
+          <strong>Plantão atual</strong><br>
+          <span id="shiftInfo">Não iniciado</span>
+        </div>
+        <div class="email-notification-popover hidden" id="emailNotificationPopover" aria-label="Notificações de e-mail">
+          <div class="email-notification-popover-header">
+            <div>
+              <h3>Notificações de e-mail</h3>
+              <p>Caixa do NIR CEMETRON</p>
+            </div>
+            <div class="email-notification-header-actions">
+              <button class="email-notification-icon-button" id="openEmailSettings" type="button" aria-label="Configurar e-mail" title="Configurar e-mail">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+              </button>
+              <button class="email-notification-icon-button" id="toggleEmailSound" type="button" aria-label="Silenciar alertas sonoros" aria-pressed="true" title="Som ativado">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4Z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M17.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+              </button>
+              <button class="email-notification-icon-button" id="refreshEmailNotifications" type="button" aria-label="Atualizar notificações" title="Atualizar">↻</button>
+              <button class="email-notification-icon-button" id="markEmailNotificationsRead" type="button" aria-label="Marcar todas como lidas" title="Marcar todas como lidas">✓</button>
+              <button class="email-notification-icon-button" id="closeEmailNotifications" type="button" aria-label="Fechar notificações" title="Fechar">×</button>
+            </div>
+          </div>
+          <div class="email-notification-tabs">
+            <button class="email-notification-tab active" id="emailActiveTab" type="button">Em acompanhamento</button>
+            <button class="email-notification-tab" id="emailHistoryTab" type="button">Histórico</button>
+          </div>
+          <div class="email-notification-list" id="emailNotificationList">
+            <div class="email-notification-empty">Carregando notificações…</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -565,18 +1754,203 @@
         <div class="actions">
           <button class="btn btn-primary" id="saveShift">Iniciar plantão</button>
           <button class="btn btn-danger" id="closeShift">Encerrar plantão</button>
-          <button class="btn btn-secondary" id="resetLocalData">Limpar dados locais</button>
+          <button class="btn btn-secondary" id="exportBackup">Exportar backup</button>
+          <button class="btn btn-secondary" id="importBackup">Importar backup</button>
+          <input id="backupFile" type="file" accept="application/json,.json" class="hidden">
+          
         </div>
         <div id="closedShiftNotice" class="locked-note hidden">
           Este plantão está encerrado. Os registros permanecem disponíveis para consulta e exportação.
         </div>
       </div>
 
-      <div class="grid">
+      <div class="panel">
+        <div class="dashboard-panel-header">
+          <div>
+            <h3>Notificações de e-mail</h3>
+            <p>Novos e-mails recebidos em nr.cemetron@sesau.ro.gov.br.</p>
+          </div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn btn-secondary" id="openEmailSettingsDashboard" type="button">Configurar e-mail</button>
+            <button class="btn btn-secondary" id="openEmailNotifications" type="button">Ver todas</button>
+          </div>
+        </div>
+        <div class="email-status-summary" id="emailStatusSummary">
+          <span class="email-summary-tag pending"><strong>0</strong> Pendentes</span>
+          <span class="email-summary-tag read"><strong>0</strong> Lidos</span>
+          <span class="email-summary-tag responded"><strong>0</strong> Respondidos</span>
+          <span class="email-summary-tag acknowledged"><strong>0</strong> Cientes 👍🏻</span>
+        </div>
+        <div class="email-notifications-dashboard-list" id="dashboardEmailNotifications">
+          <div class="email-notification-empty">As notificações recentes aparecerão aqui.</div>
+        </div>
+        <div class="email-integration-status" id="emailIntegrationStatus">Verificando a integração com o Zimbra…</div>
+      </div>
+
+      <div class="grid dashboard-record-stats">
         <div class="stat"><div class="label">🟨 Pendências</div><div class="value" id="countYellow">0</div></div>
         <div class="stat"><div class="label">🟦 Transferências / Avaliações / Exames</div><div class="value" id="countBlue">0</div></div>
         <div class="stat"><div class="label">🟩 Autorizações</div><div class="value" id="countGreen">0</div></div>
         <div class="stat"><div class="label">🟥 Negativas</div><div class="value" id="countRed">0</div></div>
+        <div class="stat total-records-stat">
+          <div class="label">Número de registros no plantão</div>
+          <div class="value" id="countTotalRecords">0</div>
+        </div>
+      </div>
+
+      <div class="panel records-chart-panel">
+        <div class="dashboard-panel-header">
+          <div>
+            <h3>Gráfico de registros por status</h3>
+            <p>Distribuição dos registros cadastrados no plantão atual.</p>
+          </div>
+        </div>
+        <div class="records-chart-layout">
+          <div class="records-donut-wrap">
+            <div class="records-donut" id="recordsDonut" role="img" aria-label="Distribuição dos registros por status">
+              <div class="records-donut-center">
+                <strong id="chartTotalRecords">0</strong>
+                <span>Total</span>
+              </div>
+            </div>
+          </div>
+          <div class="records-chart-legend" id="recordsChartLegend">
+            <div class="chart-legend-row"><span class="chart-dot yellow"></span><span>Pendências</span><strong id="chartYellowValue">0 (0%)</strong></div>
+            <div class="chart-legend-row"><span class="chart-dot blue"></span><span>Transferências / Avaliações / Exames</span><strong id="chartBlueValue">0 (0%)</strong></div>
+            <div class="chart-legend-row"><span class="chart-dot green"></span><span>Autorizações</span><strong id="chartGreenValue">0 (0%)</strong></div>
+            <div class="chart-legend-row"><span class="chart-dot red"></span><span>Negativas</span><strong id="chartRedValue">0 (0%)</strong></div>
+          </div>
+        </div>
+        <div class="actions chart-report-action">
+          <button class="btn btn-secondary" id="openFullShiftReport" type="button">Ver relatório completo</button>
+        </div>
+      </div>
+
+      <div class="panel bed-census-panel">
+        <div class="bed-census-header">
+          <div>
+            <h3>Censo diário</h3>
+            <p class="report-subtitle">Resultado consolidado do último censo diário registrado.</p>
+          </div>
+          <div class="bed-census-meta">
+            <strong>Último censo registrado</strong>
+            <span id="bedCensusLastUpdate">Nenhum censo registrado.</span>
+            <div id="bedCensusPerformedBy"></div>
+          </div>
+        </div>
+
+        <div class="bed-census-summary-grid">
+          <section class="bed-census-summary-section">
+            <h4>Infectologia</h4>
+            <table class="bed-census-result-table">
+              <thead><tr><th>Clínica</th><th>Leitos disponíveis</th></tr></thead>
+              <tbody id="bedCensusInfectologiaResult"></tbody>
+            </table>
+          </section>
+          <section class="bed-census-summary-section">
+            <h4>Clínica Médica</h4>
+            <table class="bed-census-result-table">
+              <thead><tr><th>Clínica</th><th>Leitos disponíveis</th></tr></thead>
+              <tbody id="bedCensusClinicaResult"></tbody>
+            </table>
+          </section>
+        </div>
+
+        <div style="margin-top:16px">
+          <strong>Observações</strong>
+          <div id="bedCensusObservationsResult" class="bed-census-observations-result">Nenhuma observação registrada.</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="openBedCensusModal" type="button">Registrar novo censo</button>
+        </div>
+      </div>
+
+
+    </section>
+
+
+    <section id="ocupacaoHospub" class="view hidden">
+      <div class="panel">
+        <div class="hospub-module-header">
+          <div>
+            <h3>Ocupação Hospitalar — Visual Hospub</h3>
+            <p class="report-subtitle">Censo automático por setor durante o plantão ativo.</p>
+          </div>
+          <div class="hospub-module-actions">
+            <span class="hospub-connection-status" id="hospubConnectionStatus" role="status" aria-live="polite">Conector não detectado</span>
+            <span class="bed-census-meta"><strong>Última atualização</strong><span id="hospubLastUpdate">Nenhuma atualização recebida.</span></span>
+            <button class="btn btn-primary" id="hospubRefreshNow" type="button">Atualizar do Hospub</button>
+          </div>
+        </div>
+
+        <div class="hospub-summary-grid" aria-label="Resumo da ocupação hospitalar">
+          <div class="hospub-summary-card">
+            <span class="hospub-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M4 15h16v4M7 15v-4h5a3 3 0 0 1 3 3v1M4 19v2M20 15v6"/></svg></span>
+            <div><span>Leitos operacionais</span><strong id="hospubOperationalTotal">—</strong></div>
+          </div>
+          <div class="hospub-summary-card">
+            <span class="hospub-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20v-2a5 5 0 0 1 10 0v2M11 20v-2a5 5 0 0 1 10 0v2"/></svg></span>
+            <div><span>Pacientes internados</span><strong id="hospubOccupiedTotal">—</strong></div>
+          </div>
+          <div class="hospub-summary-card">
+            <span class="hospub-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M4 15h16v4M7 15v-4h5a3 3 0 0 1 3 3v1M4 19v2M20 15v6"/><path d="M17 7h4M19 5v4"/></svg></span>
+            <div><span>Leitos disponíveis</span><strong id="hospubAvailableTotal">—</strong></div>
+          </div>
+          <div class="hospub-summary-card">
+            <span class="hospub-summary-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v9h9"/><path d="M20 16a9 9 0 1 1-8-13"/></svg></span>
+            <div><span>Taxa de ocupação</span><strong id="hospubOccupancyRate">—</strong></div>
+          </div>
+        </div>
+
+        <div class="hospub-sector-panel">
+          <div class="hospub-sector-panel-header">
+            <div>
+              <h4>Ocupação por setor</h4>
+              <p class="hospub-capacity-help" id="hospubCapacityHelp">Configure os leitos operacionais e as tags assistenciais de cada setor.</p>
+            </div>
+            <div class="actions" style="margin-top:0">
+              <button class="btn btn-secondary hidden" id="cancelHospubCapacityConfig" type="button">Cancelar</button>
+              <button class="btn btn-secondary" id="toggleHospubCapacityConfig" type="button">Configurar leitos e tags</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="border:0;border-radius:0">
+            <table class="hospub-sector-table">
+              <thead><tr><th>Setor</th><th>Leitos operacionais</th><th>Pacientes internados</th><th>Leitos disponíveis</th><th>Taxa de ocupação</th></tr></thead>
+              <tbody id="hospubSectorTableBody"></tbody>
+              <tfoot id="hospubSectorTableFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <div class="hospub-privacy-note"><strong aria-hidden="true">ⓘ</strong><span>Somente totais por setor são enviados ao SCIR. Nenhum nome, prontuário, CID, diagnóstico ou outro dado de identificação do paciente é armazenado.</span></div>
+        <p class="hospub-install-note">Para a atualização automática, mantenha o Visual Hospub autenticado em outra aba do Chrome e instale o conector incluído neste pacote. A consulta é executada somente enquanto o plantão estiver ativo.</p>
+      </div>
+    </section>
+
+    <section id="mensagensPadrao" class="view hidden">
+      <div class="panel">
+        <div class="dashboard-panel-header">
+          <div>
+            <h3>Mensagens padrão</h3>
+            <p>Cadastre, edite, copie e exclua textos utilizados com frequência nas rotinas do NIR.</p>
+          </div>
+        </div>
+        <div class="standard-message-form">
+          <div>
+            <label for="standardMessageTitle">Título da mensagem</label>
+            <input id="standardMessageTitle" placeholder="Ex.: Solicitação de atualização">
+          </div>
+          <div class="message-text-field">
+            <label for="standardMessageText">Texto da mensagem</label>
+            <textarea id="standardMessageText" placeholder="Digite a mensagem completa..."></textarea>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="saveStandardMessage" type="button">Salvar mensagem</button>
+            <button class="btn btn-secondary" id="cancelStandardMessage" type="button">Limpar</button>
+          </div>
+        </div>
+        <div class="standard-messages-list" id="standardMessagesList"></div>
       </div>
     </section>
 
@@ -645,6 +2019,24 @@
           </div>
         </div>
 
+        <div class="shift-productivity-summary" aria-label="Produtividade do plantão">
+          <div class="shift-productivity-card"><span>E-mails recebidos</span><strong id="shiftEmailReceived">0</strong></div>
+          <div class="shift-productivity-card"><span>E-mails respondidos</span><strong id="shiftEmailResponded">0</strong></div>
+          <div class="shift-productivity-card"><span>E-mails com ciência</span><strong id="shiftEmailAcknowledged">0</strong></div>
+          <div class="shift-productivity-card"><span>Atualizações do censo</span><strong id="shiftCensusUpdateCount">0</strong></div>
+        </div>
+
+        <div class="shift-census-history">
+          <h4>Atualizações do censo no plantão</h4>
+          <div class="table-wrap">
+            <table class="records-table productivity-history-table">
+              <thead><tr><th>Data e hora</th><th>Responsável</th><th>Resumo do censo</th><th>Observações</th></tr></thead>
+              <tbody id="shiftCensusHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <h4 class="shift-records-heading">Registros de regulação do plantão</h4>
         <div class="table-wrap">
           <table class="records-table">
             <thead>
@@ -743,6 +2135,8 @@
                 <th>Plantonista</th>
                 <th>Encerramento</th>
                 <th>Registros</th>
+                <th>E-mails</th>
+                <th>Censos</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -762,6 +2156,25 @@
             <button class="btn btn-excel" id="historyExportExcel">Exportar para Excel</button>
           </div>
         </div>
+
+        <div class="shift-productivity-summary" aria-label="Produtividade do plantão encerrado">
+          <div class="shift-productivity-card"><span>E-mails recebidos</span><strong id="historyEmailReceived">—</strong></div>
+          <div class="shift-productivity-card"><span>E-mails respondidos</span><strong id="historyEmailResponded">—</strong></div>
+          <div class="shift-productivity-card"><span>E-mails com ciência</span><strong id="historyEmailAcknowledged">—</strong></div>
+          <div class="shift-productivity-card"><span>Atualizações do censo</span><strong id="historyCensusUpdateCount">—</strong></div>
+        </div>
+
+        <div class="shift-census-history">
+          <h4>Atualizações do censo no plantão</h4>
+          <div class="table-wrap">
+            <table class="records-table productivity-history-table">
+              <thead><tr><th>Data e hora</th><th>Responsável</th><th>Resumo do censo</th><th>Observações</th></tr></thead>
+              <tbody id="historyCensusHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <h4 class="shift-records-heading">Registros de regulação do plantão</h4>
         <div class="table-wrap">
           <table class="records-table">
             <thead>
@@ -822,7 +2235,7 @@
           </div>
 
         </div>
-      <div class="panel"><div class="calendar-toolbar"><button class="btn btn-secondary" id="previousMonth">← Mês anterior</button><h3 id="calendarMonthTitle"></h3><button class="btn btn-secondary" id="nextMonth">Próximo mês →</button></div><div class="calendar-scroll"><div class="calendar-grid" id="calendarGrid"></div></div><div class="calendar-legend"><span><span class="legend-dot green"></span>Plantão já executado</span><span><span class="legend-dot blue"></span>NIR ainda não executado</span><span><span class="legend-dot yellow"></span>Visita Médica ainda não executada</span></div></div>
+      <div class="panel"><div class="calendar-toolbar"><button class="btn btn-secondary" id="previousMonth">← Mês anterior</button><h3 id="calendarMonthTitle"></h3><button class="btn btn-secondary" id="nextMonth">Próximo mês →</button></div><div class="calendar-scroll"><div class="calendar-grid" id="calendarGrid"></div></div><div class="calendar-mobile-agenda" id="calendarMobileAgenda"></div><div class="calendar-legend"><span><span class="legend-dot green"></span>Plantão já executado</span><span><span class="legend-dot blue"></span>NIR ainda não executado</span><span><span class="legend-dot yellow"></span>Visita Médica ainda não executada</span></div></div>
       <div class="panel" style="margin-top:16px;">
         <h3>Exportar meus plantões</h3>
         <div class="calendar-export-actions">
@@ -863,19 +2276,19 @@
           </div>
           <div style="grid-column:1/-1">
             <label for="vacancies">Vagas disponíveis</label>
-            <input id="vacancies" type="text" placeholder="Ex.: Clínica Médica: 2 vagas | UTI: lotada | Censo: 42 pacientes">
+            <textarea class="sbar-long-text" id="vacancies" rows="4" placeholder="Registre as vagas disponíveis, setores lotados, bloqueios, restrições e demais informações relevantes."></textarea>
           </div>
-<div style="grid-column:1/-1">
+          <div style="grid-column:1/-1">
             <label for="background">B — Background / Contexto — Ocorrências do plantão</label>
-            <textarea id="background" placeholder="Registre as ocorrências do plantão."></textarea>
+            <textarea class="sbar-long-text" id="background" rows="4" placeholder="Registre as ocorrências do plantão."></textarea>
           </div>
           <div style="grid-column:1/-1">
             <label for="assessment">A — Avaliação</label>
-            <textarea id="assessment" placeholder="Avaliação do cenário, pendências, limitações e riscos identificados."></textarea>
+            <textarea class="sbar-long-text" id="assessment" rows="4" placeholder="Avaliação do cenário, pendências, limitações e riscos identificados."></textarea>
           </div>
           <div style="grid-column:1/-1">
             <label for="recommendation">R — Relatório do plantão</label>
-            <textarea id="recommendation" placeholder="Registre o resumo final do plantão, ocorrências relevantes, encaminhamentos e pendências."></textarea>
+            <textarea class="sbar-long-text" id="recommendation" rows="4" placeholder="Registre o resumo final do plantão, ocorrências relevantes, encaminhamentos e pendências."></textarea>
           </div>
         </div>
 
@@ -895,7 +2308,109 @@
   </main>
 </div>
 
+
+<div class="bed-census-modal" id="bedCensusModal" role="dialog" aria-modal="true" aria-labelledby="bedCensusModalTitle">
+  <div class="bed-census-dialog">
+    <div class="bed-census-dialog-header">
+      <div>
+        <h3 id="bedCensusModalTitle">Registrar censo diário</h3>
+        <p class="report-subtitle">Informe data, hora, responsável e quantitativo disponível em cada clínica.</p>
+      </div>
+      <button class="btn btn-secondary" id="closeBedCensusModal" type="button">Fechar</button>
+    </div>
+
+    <div class="bed-census-form-meta">
+      <div><label for="bedCensusDate">Data do censo</label><input id="bedCensusDate" type="date"></div>
+      <div><label for="bedCensusTime">Hora do censo</label><input id="bedCensusTime" type="time"></div>
+      <div><label for="bedCensusPerformedByInput">Realizado por</label><input id="bedCensusPerformedByInput" placeholder="Nome do profissional"></div>
+    </div>
+
+    <div class="bed-census-form-grid">
+      <section class="bed-census-form-section">
+        <h4>Infectologia</h4>
+        <table class="bed-census-form-table">
+          <thead><tr><th>Clínica</th><th>Leitos disponíveis</th></tr></thead>
+          <tbody>
+            <tr><td>Masculina 2 - Coletivo</td><td><input id="bedInfMasc2" type="number" min="0" step="1"></td></tr>
+            <tr><td>Masculina 3 - Coletivo</td><td><input id="bedInfMasc3" type="number" min="0" step="1"></td></tr>
+            <tr><td>Feminina - Coletivo</td><td><input id="bedInfFem" type="number" min="0" step="1"></td></tr>
+            <tr><td>Isolamento - TB</td><td><input id="bedInfTb" type="number" min="0" step="1"></td></tr>
+            <tr><td>UTI Coletivo</td><td><input id="bedInfUtiColetivo" type="number" min="0" step="1"></td></tr>
+            <tr><td>UTI Isolamento</td><td><input id="bedInfUtiIso" type="number" min="0" step="1"></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="bed-census-form-section">
+        <h4>Clínica Médica</h4>
+        <table class="bed-census-form-table">
+          <thead><tr><th>Clínica</th><th>Leitos disponíveis</th></tr></thead>
+          <tbody>
+            <tr><td>Masculina 1 - Coletivo</td><td><input id="bedClinMasc1" type="number" min="0" step="1"></td></tr>
+            <tr><td>Masculina 1 - Isolamento</td><td><input id="bedClinMasc1Iso" type="number" min="0" step="1"></td></tr>
+            <tr><td>Feminina - Coletivo</td><td><input id="bedClinFem" type="number" min="0" step="1"></td></tr>
+            <tr><td>UTI Geral - Coletivo</td><td><input id="bedClinUtiGeral" type="number" min="0" step="1"></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <div style="margin-top:16px">
+      <label for="bedCensusObservations">Observações</label>
+      <textarea id="bedCensusObservations" placeholder="Bloqueios, restrições, previsão de liberação ou outras informações relevantes..."></textarea>
+    </div>
+
+    <div class="bed-census-dialog-actions">
+      <button class="btn btn-secondary" id="clearBedCensusForm" type="button">Limpar campos</button>
+      <button class="btn btn-primary" id="saveBedCensus" type="button">Registrar censo</button>
+    </div>
+  </div>
+</div>
+
+<div class="reminder-modal" id="shiftReminderModal" role="dialog" aria-modal="true" aria-labelledby="shiftReminderTitle" aria-describedby="shiftReminderText">
+  <div class="reminder-dialog">
+    <div class="reminder-symbol" aria-hidden="true">!</div>
+    <span class="reminder-eyebrow">Lembrete do plantão</span>
+    <h3 id="shiftReminderTitle">Registro de ponto</h3>
+    <p id="shiftReminderText"></p>
+    <button class="btn btn-primary" id="dismissShiftReminder" type="button">Entendido</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<div class="email-alert-toast" id="emailAlertToast" role="status" aria-live="assertive" aria-atomic="true">
+  <button class="email-alert-toast-close" id="closeEmailAlertToast" type="button" aria-label="Fechar alerta">×</button>
+  <strong>Novo e-mail recebido</strong>
+  <p><b>De:</b> <span id="emailAlertSender"></span></p>
+  <p><b>Assunto:</b> <span id="emailAlertSubject"></span></p>
+  <p><b>Recebido:</b> <span id="emailAlertTime"></span></p>
+</div>
+
+<div class="email-settings-modal" id="emailSettingsModal" role="dialog" aria-modal="true" aria-labelledby="emailSettingsTitle">
+  <form class="email-settings-dialog" id="emailSettingsForm">
+    <h3 id="emailSettingsTitle">Configurar e-mail do NIR</h3>
+    <p>O servidor e o endereço já estão definidos. Informe somente a senha para testar e ativar as notificações.</p>
+    <div class="field">
+      <label for="emailSettingsAddress">E-mail</label>
+      <input class="email-settings-readonly" id="emailSettingsAddress" value="nr.cemetron@sesau.ro.gov.br" readonly>
+    </div>
+    <div class="field">
+      <label for="emailSettingsServer">Servidor Zimbra</label>
+      <input class="email-settings-readonly" id="emailSettingsServer" value="webmail.sesau.ro.gov.br — IMAP seguro, porta 993" readonly>
+    </div>
+    <div class="field">
+      <label for="emailSettingsPassword">Senha do e-mail</label>
+      <input id="emailSettingsPassword" type="password" autocomplete="current-password" placeholder="Digite a senha do Zimbra" required>
+    </div>
+    <div class="email-settings-security">A senha não será exibida novamente. Ela será criptografada antes de ser armazenada e ficará disponível somente para as funções seguras da Vercel.</div>
+    <div class="email-settings-result" id="emailSettingsResult" role="alert" aria-live="polite"></div>
+    <div class="actions">
+      <button class="btn btn-secondary" id="cancelEmailSettings" type="button">Cancelar</button>
+      <button class="btn btn-primary" id="saveEmailSettings" type="submit">Testar e ativar</button>
+    </div>
+  </form>
+</div>
 
 <script>
   const moduleMeta = {
@@ -905,16 +2420,107 @@
     red: { title: "🟥 NEGATIVAS", css: "red" }
   };
 
-  let state = JSON.parse(localStorage.getItem("nirCemetronFinalStateV2")) || {
+  const STORAGE_KEY = "nirCemetronFinalStateV2";
+  const HOSPUB_APP_SOURCE = "scir-hospub-app-v1";
+  const HOSPUB_CONNECTOR_SOURCE = "scir-hospub-connector-v1";
+  const HOSPUB_POLL_INTERVAL_MS = 5 * 60 * 1000;
+  const HOSPUB_CARE_AREA_OPTIONS = ["","INFECTO","CM","INFECTO/CM","INFECTO/PPL","PPL"];
+  const HOSPUB_DEFAULT_SECTORS = [
+    {key:"clinica-feminina",label:"Clínica Feminina",careArea:"INFECTO/CM"},
+    {key:"isolamento",label:"Isolamento",careArea:"INFECTO"},
+    {key:"masculina-1",label:"Masculina 1",careArea:"CM"},
+    {key:"masculina-2",label:"Masculina 2",careArea:"INFECTO/PPL"},
+    {key:"masculina-3",label:"Masculina 3",careArea:"INFECTO"},
+    {key:"pa-geral",label:"PA/Geral",careArea:"INFECTO"},
+    {key:"pa-internacao",label:"PA/Internação",careArea:"INFECTO"},
+    {key:"pa-observacao",label:"PA/Observação",careArea:"INFECTO"},
+    {key:"pa-sala-vermelha",label:"PA/Sala Vermelha",careArea:"INFECTO"},
+    {key:"sala-vermelha-isolamento",label:"Sala Vermelha Isolamento",careArea:"INFECTO"},
+    {key:"uti-geral",label:"UTI Geral",careArea:"CM"},
+    {key:"uti-infecto",label:"UTI Infecto",careArea:"INFECTO"}
+  ];
+
+  function emptyHospubCensus(){
+    return {sectors:[],capacities:{},careAreas:{},capturedAt:null,lastFingerprint:"",lastRecordedShiftId:null};
+  }
+
+  function normalizeHospubCensus(value){
+    const source = value && typeof value === "object" ? value : {};
+    const capacities = {};
+    Object.entries(source.capacities || {}).forEach(([key,raw]) => {
+      if(!/^[a-z0-9-]{1,90}$/.test(key)) return;
+      capacities[key] = raw === "" || raw === null || raw === undefined
+        ? ""
+        : Math.max(0, Number(raw) || 0);
+    });
+    const careAreas = {};
+    Object.entries(source.careAreas || {}).forEach(([key,raw]) => {
+      if(!/^[a-z0-9-]{1,90}$/.test(key)) return;
+      const careArea = String(raw || "").slice(0,30);
+      if(HOSPUB_CARE_AREA_OPTIONS.includes(careArea)) careAreas[key] = careArea;
+    });
+    const sectors = Array.isArray(source.sectors)
+      ? source.sectors.slice(0,50).map(item => {
+          const rawOccupied = item?.occupied;
+          return {
+            key:String(item?.key || "").slice(0,90),
+            label:String(item?.label || "Setor não identificado").slice(0,100),
+            occupied:rawOccupied === "" || rawOccupied === null || rawOccupied === undefined
+              ? null
+              : (Number.isFinite(Number(rawOccupied)) ? Math.max(0,Math.trunc(Number(rawOccupied))) : null)
+          };
+        }).filter(item => /^[a-z0-9-]{1,90}$/.test(item.key))
+      : [];
+    return {
+      ...emptyHospubCensus(),
+      ...source,
+      sectors,
+      capacities,
+      careAreas,
+      capturedAt:source.capturedAt || null,
+      lastFingerprint:String(source.lastFingerprint || ""),
+      lastRecordedShiftId:source.lastRecordedShiftId || null
+    };
+  }
+
+  let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
     shift: null,
     records: [],
     history: [],
-    sbar: { operationalStatus:"", turnover:"", vacancies:"", background:"", assessment:"", recommendation:"" }
+    sbar: { operationalStatus:"", turnover:"", vacancies:"", background:"", assessment:"", recommendation:"" },
+    dashboardNotes: "",
+    dashboardNotesUpdatedAt: null,
+    standardMessages: [],
+    shiftCensusUpdates: [],
+    hospubCensus:emptyHospubCensus(),
+    bedCensus: {
+      infectologia:{masc2:"",masc3:"",fem:"",tb:"",utiColetivo:"",utiIsolamento:""},
+      clinica:{masc1:"",masc1Isolamento:"",fem:"",utiGeral:""},
+      observations:"",
+      censusDate:"",
+      censusTime:"",
+      performedBy:"",
+      updatedAt:null
+    }
   };
 
   state.records = Array.isArray(state.records) ? state.records : [];
   state.history = Array.isArray(state.history) ? state.history : [];
   state.calendarShifts = Array.isArray(state.calendarShifts) ? state.calendarShifts : [];
+  state.dashboardNotes = typeof state.dashboardNotes === "string" ? state.dashboardNotes : "";
+  state.dashboardNotesUpdatedAt = state.dashboardNotesUpdatedAt || null;
+  state.standardMessages = Array.isArray(state.standardMessages) ? state.standardMessages : [];
+  state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+  state.hospubCensus = normalizeHospubCensus(state.hospubCensus);
+  state.bedCensus = state.bedCensus && typeof state.bedCensus === "object" ? state.bedCensus : {
+    infectologia:{masc2:"",masc3:"",fem:"",tb:"",utiColetivo:"",utiIsolamento:""},
+    clinica:{masc1:"",masc1Isolamento:"",fem:"",utiGeral:""},
+    observations:"",
+    censusDate:"",
+    censusTime:"",
+    performedBy:"",
+    updatedAt:null
+  };
   state.sbar = state.sbar || {
     operationalStatus:"",
     turnover:"",
@@ -927,13 +2533,57 @@
   if(state.shift && !state.shift.status){
     state.shift.status = "EM ANDAMENTO";
   }
+  seedLatestCensusForCurrentShift();
 
   let editingRecordId = null;
   let selectedHistoryId = null;
   let calendarEditingId = null;
+  let editingStandardMessageId = null;
   let calendarCurrentDate = new Date();
+  const EMAIL_LAST_READ_STORAGE_KEY = "scirEmailLastReadAtV1";
+  const EMAIL_SOUND_STORAGE_KEY = "scirEmailSoundEnabledV1";
+  let emailNotifications = [];
+  let emailNotificationsLoaded = false;
+  let emailIntegration = null;
+  let emailHistoryMode = false;
+  let emailMonitoringActive = false;
+  let emailSoundEnabled = localStorage.getItem(EMAIL_SOUND_STORAGE_KEY) !== "false";
+  let emailAudioContext = null;
+  let emailNotificationPollTimer = null;
+  let emailNotificationRequestInFlight = false;
+  let emailNotificationRequestPromise = null;
+  let emailAlertTimer = null;
+  let hospubConnectorDetected = false;
+  let hospubConnectorVersion = "";
+  let hospubConnectorMessage = "Conector não detectado";
+  let hospubConnectorStatusClass = "";
+  let hospubScanInProgress = false;
+  let hospubCensusPollTimer = null;
+  let hospubCensusInitialTimer = null;
+  let hospubCensusResponseTimer = null;
+  let hospubCapacityEditing = false;
+  let hospubCapacityDraft = {};
+  let hospubCareAreaDraft = {};
 
   const $ = id => document.getElementById(id);
+
+  function openMobileMenu(){
+    $("mainSidebar")?.classList.add("mobile-open");
+    document.body.classList.add("menu-open");
+    $("mobileMenuButton")?.setAttribute("aria-expanded", "true");
+    $("mobileMenuButton")?.setAttribute("aria-label", "Fechar menu");
+  }
+
+  function closeMobileMenu(){
+    $("mainSidebar")?.classList.remove("mobile-open");
+    document.body.classList.remove("menu-open");
+    $("mobileMenuButton")?.setAttribute("aria-expanded", "false");
+    $("mobileMenuButton")?.setAttribute("aria-label", "Abrir menu");
+  }
+
+  function setCurrentViewTitle(button){
+    if($("mobilePageTitle")) $("mobilePageTitle").textContent = button?.textContent?.trim() || "Dashboard";
+  }
 
   function getCurrentTime(){
     const now = new Date();
@@ -946,9 +2596,551 @@
     }
   }
 
+  let cloudSaveTimer = null;
+  let cloudSaveChain = Promise.resolve();
+
+  function setCloudStatus(message, type=""){
+    const el = $("cloudStatus");
+    if(!el) return;
+    el.textContent = message;
+    el.className = `cloud-bar ${type}`.trim();
+  }
+
+  async function cloudRequest(path, options={}){
+    const response = await fetch(path, {
+      ...options,
+      headers:{"Content-Type":"application/json", ...(options.headers || {})}
+    });
+    const body = await response.json().catch(() => ({}));
+    if(!response.ok) throw new Error(body.error || "Falha ao acessar a base em nuvem.");
+    return body;
+  }
+
+  function emailReceivedTime(value){
+    const date = new Date(value);
+    if(Number.isNaN(date.getTime())) return "Horário não informado";
+    return `${String(date.getHours()).padStart(2,"0")}h${String(date.getMinutes()).padStart(2,"0")}`;
+  }
+
+  function emailReceivedDateTime(value){
+    const date = new Date(value);
+    if(Number.isNaN(date.getTime())) return "Data e horário não informados";
+    return `${date.toLocaleDateString("pt-BR")} às ${emailReceivedTime(value)}`;
+  }
+
+  function emailLastReadAt(){
+    const stored = localStorage.getItem(EMAIL_LAST_READ_STORAGE_KEY);
+    const parsed = stored ? new Date(stored).getTime() : 0;
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function isEmailNotificationUnread(notification){
+    if(notification.readAt || notification.respondedAt || notification.acknowledgedAt) return false;
+    const eventTime = new Date(notification.createdAt || notification.receivedAt).getTime();
+    return Number.isFinite(eventTime) && eventTime > emailLastReadAt();
+  }
+
+  function emailNotificationMarkup(notification){
+    const unreadClass = isEmailNotificationUnread(notification) ? " unread" : "";
+    const status = notification.respondedAt
+      ? {key:"responded", label:"Respondido", action:null, buttonLabel:null}
+      : notification.acknowledgedAt
+        ? {key:"acknowledged", label:"Ciente 👍🏻", action:null, buttonLabel:null}
+      : notification.readAt
+        ? {key:"read", label:"Lido", action:"final", buttonLabel:null}
+        : {key:"pending", label:"Pendente", action:"read", buttonLabel:"Marcar como lida"};
+    const encodedEventKey = notification.eventKey
+      ? encodeURIComponent(String(notification.eventKey))
+      : "";
+    const quickActions = status.action === "final" && encodedEventKey
+      ? `<button class="email-mark-read-button" type="button" data-email-action="responded" data-email-event-key="${encodedEventKey}">Marcar como respondido</button>
+          <button class="email-mark-read-button acknowledged-action" type="button" data-email-action="acknowledged" data-email-event-key="${encodedEventKey}">Ciente 👍🏻</button>`
+      : status.action && encodedEventKey
+        ? `<button class="email-mark-read-button" type="button" data-email-action="${status.action}" data-email-event-key="${encodedEventKey}">${status.buttonLabel}</button>`
+        : "";
+    const statusEditor = encodedEventKey
+      ? `<label class="email-status-editor">
+          <span>Editar ação</span>
+          <select class="${status.key}" data-email-status-editor data-email-event-key="${encodedEventKey}" aria-label="Editar ação deste e-mail">
+            <option value="pending"${status.key === "pending" ? " selected" : ""}>Pendente</option>
+            <option value="read"${status.key === "read" ? " selected" : ""}>Lido</option>
+            <option value="responded"${status.key === "responded" ? " selected" : ""}>Respondido</option>
+            <option value="acknowledged"${status.key === "acknowledged" ? " selected" : ""}>Ciente 👍🏻</option>
+          </select>
+        </label>`
+      : "";
+    const controls = quickActions || statusEditor
+      ? `<div class="email-notification-actions">${quickActions}${statusEditor}</div>`
+      : "";
+    return `<article class="email-notification-item${unreadClass} ${status.key}">
+      <strong>Novo e-mail recebido</strong>
+      <dl>
+        <div><dt>De:</dt><dd>${escapeHtml(notification.sender || "Remetente não identificado")}</dd></div>
+        <div><dt>Assunto:</dt><dd>${escapeHtml(notification.subject || "Sem assunto")}</dd></div>
+        <div><dt>Recebido:</dt><dd>${escapeHtml(emailReceivedDateTime(notification.receivedAt))}</dd></div>
+      </dl>
+      <div class="email-notification-footer">
+        <span class="email-status-tag ${status.key}">${status.label}</span>
+        ${controls}
+      </div>
+    </article>`;
+  }
+
+  function renderEmailSoundControl(){
+    const button = $("toggleEmailSound");
+    if(!button) return;
+    button.classList.toggle("muted", !emailSoundEnabled);
+    button.setAttribute("aria-pressed", String(emailSoundEnabled));
+    button.setAttribute(
+      "aria-label",
+      emailSoundEnabled ? "Silenciar alertas sonoros" : "Ativar alertas sonoros"
+    );
+    button.title = emailSoundEnabled ? "Som ativado" : "Som silenciado";
+    button.innerHTML = emailSoundEnabled
+      ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4Z"/><path d="M15 9a4 4 0 0 1 0 6"/><path d="M17.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>`
+      : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6.5 9H3v6h3.5l4.5 4Z"/><path d="m16 10 5 5M21 10l-5 5"/></svg>`;
+  }
+
+  async function unlockEmailNotificationSound(){
+    if(!emailSoundEnabled) return null;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if(!AudioContextClass) return null;
+    if(!emailAudioContext) emailAudioContext = new AudioContextClass();
+    if(emailAudioContext.state === "suspended"){
+      await emailAudioContext.resume().catch(() => {});
+    }
+    return emailAudioContext;
+  }
+
+  function scheduleEmailTone(context, frequency, startAt, duration, volume){
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(frequency, startAt);
+    gain.gain.setValueAtTime(0.0001, startAt);
+    gain.gain.exponentialRampToValueAtTime(volume, startAt + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + duration + 0.02);
+  }
+
+  async function playEmailNotificationSound(){
+    if(!emailSoundEnabled) return;
+    const context = await unlockEmailNotificationSound();
+    if(!context || context.state !== "running") return;
+    const startAt = context.currentTime + 0.02;
+    scheduleEmailTone(context, 783.99, startAt, 0.22, 0.34);
+    scheduleEmailTone(context, 1046.50, startAt + 0.20, 0.27, 0.31);
+    scheduleEmailTone(context, 1318.51, startAt + 0.43, 0.36, 0.28);
+  }
+
+  function currentEmailHistoryShiftId(){
+    if(!state.shift) return null;
+    return String(
+      state.shift.id ||
+      `${state.shift.date || "sem-data"}:${state.shift.type || "plantao"}:${state.shift.startedAt || ""}`
+    );
+  }
+
+  function currentEmailShiftId(){
+    if(isShiftClosed()) return null;
+    return currentEmailHistoryShiftId();
+  }
+
+  function currentEmailShiftStartedAt(){
+    if(!currentEmailShiftId() || !state.shift?.startedAt) return null;
+    const startedAt = new Date(state.shift.startedAt);
+    return Number.isNaN(startedAt.getTime()) ? null : startedAt.toISOString();
+  }
+
+  function renderEmailNotifications(){
+    renderEmailSoundControl();
+    const pendingNotifications = emailNotifications.filter(item => !item.readAt && !item.respondedAt && !item.acknowledgedAt);
+    const readNotifications = emailNotifications.filter(item => item.readAt && !item.respondedAt && !item.acknowledgedAt);
+    const respondedNotifications = emailNotifications.filter(item => item.respondedAt);
+    const acknowledgedNotifications = emailNotifications.filter(item => item.acknowledgedAt && !item.respondedAt);
+    const activeNotifications = emailNotifications.filter(item => !item.respondedAt && !item.acknowledgedAt);
+    const displayedNotifications = emailHistoryMode ? emailNotifications : activeNotifications;
+    const unreadCount = emailNotifications.filter(isEmailNotificationUnread).length;
+    ["emailNotificationBadge","emailNotificationBadgeMobile"].forEach(id => {
+      const badge = $(id);
+      if(!badge) return;
+      badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
+      badge.classList.toggle("hidden", unreadCount === 0);
+    });
+
+    document.querySelectorAll("[data-email-notifications-toggle]").forEach(button => {
+      button.setAttribute("aria-label", unreadCount
+        ? `Abrir notificações de e-mail: ${unreadCount} não lida${unreadCount === 1 ? "" : "s"}`
+        : "Abrir notificações de e-mail");
+    });
+
+    const summary = $("emailStatusSummary");
+    if(summary){
+      summary.innerHTML = `
+        <span class="email-summary-tag pending"><strong>${pendingNotifications.length}</strong> Pendentes</span>
+        <span class="email-summary-tag read"><strong>${readNotifications.length}</strong> Lidos</span>
+        <span class="email-summary-tag responded"><strong>${respondedNotifications.length}</strong> Respondidos</span>
+        <span class="email-summary-tag acknowledged"><strong>${acknowledgedNotifications.length}</strong> Cientes 👍🏻</span>`;
+    }
+
+    const activeTab = $("emailActiveTab");
+    const historyTab = $("emailHistoryTab");
+    if(activeTab){
+      activeTab.textContent = `Em acompanhamento (${activeNotifications.length})`;
+      activeTab.classList.toggle("active", !emailHistoryMode);
+    }
+    if(historyTab){
+      historyTab.textContent = `Histórico (${emailNotifications.length})`;
+      historyTab.classList.toggle("active", emailHistoryMode);
+    }
+
+    const list = $("emailNotificationList");
+    if(list){
+      list.innerHTML = displayedNotifications.length
+        ? displayedNotifications.map(emailNotificationMarkup).join("")
+        : `<div class="email-notification-empty">${
+            !emailIntegration?.configured
+              ? "Configure o e-mail para começar a receber notificações."
+              : emailHistoryMode
+                ? "Nenhum e-mail no histórico."
+                : "Nenhum e-mail em acompanhamento."
+          }</div>`;
+    }
+
+    const dashboardList = $("dashboardEmailNotifications");
+    if(dashboardList){
+      dashboardList.innerHTML = activeNotifications.length
+        ? activeNotifications.slice(0,4).map(emailNotificationMarkup).join("")
+        : `<div class="email-notification-empty">${
+            !emailIntegration?.configured
+              ? "Clique em “Configurar e-mail” e informe somente a senha do Zimbra."
+              : "Nenhum e-mail pendente ou lido em acompanhamento."
+          }</div>`;
+    }
+
+    const integrationStatus = $("emailIntegrationStatus");
+    if(integrationStatus){
+      integrationStatus.className = "email-integration-status";
+      if(!emailIntegration){
+        integrationStatus.textContent = "Verificando a integração com o Zimbra…";
+      }else if(!emailIntegration.configured){
+        integrationStatus.textContent = "Integração ainda não configurada. Informe a senha do Zimbra uma única vez para ativar.";
+      }else if(!currentEmailShiftId()){
+        integrationStatus.textContent = "Monitoramento pausado. Inicie um plantão para começar a receber e atualizar notificações.";
+      }else if(emailIntegration.lastError){
+        integrationStatus.classList.add("error");
+        integrationStatus.textContent = `Zimbra configurado, mas a última consulta falhou: ${emailIntegration.lastError}`;
+      }else{
+        integrationStatus.classList.add("online");
+        integrationStatus.textContent = emailIntegration.lastCheckedAt
+          ? `Zimbra conectado. Última verificação: ${emailReceivedDateTime(emailIntegration.lastCheckedAt)}.`
+          : "Zimbra configurado e pronto para receber notificações.";
+      }
+    }
+
+    const settingsButton = $("openEmailSettingsDashboard");
+    if(settingsButton){
+      settingsButton.textContent = emailIntegration?.configured ? "Reconfigurar e-mail" : "Configurar e-mail";
+    }
+  }
+
+  function showEmailAlert(notification){
+    $("emailAlertSender").textContent = notification.sender || "Remetente não identificado";
+    $("emailAlertSubject").textContent = notification.subject || "Sem assunto";
+    $("emailAlertTime").textContent = emailReceivedTime(notification.receivedAt);
+    $("emailAlertToast").classList.add("show");
+    playEmailNotificationSound().catch(() => {});
+    clearTimeout(emailAlertTimer);
+    emailAlertTimer = setTimeout(() => $("emailAlertToast")?.classList.remove("show"), 10000);
+  }
+
+  async function loadEmailNotifications({announce=true}={}){
+    if(emailNotificationRequestPromise) return emailNotificationRequestPromise;
+    emailNotificationRequestInFlight = true;
+    emailNotificationRequestPromise = (async () => {
+      const previousKeys = new Set(emailNotifications.map(item => item.eventKey));
+      const shiftId = currentEmailShiftId();
+      const historyShiftId = currentEmailHistoryShiftId();
+      const shiftStartedAt = currentEmailShiftStartedAt();
+      const requestParameters = new URLSearchParams();
+      if(historyShiftId) requestParameters.set("historyShiftId", historyShiftId);
+      if(shiftId){
+        requestParameters.set("shiftId", shiftId);
+        requestParameters.set("shiftStartedAt", shiftStartedAt || "");
+      }
+      const requestQuery = requestParameters.toString();
+      const requestPath = requestQuery
+        ? `/api/email-notifications?${requestQuery}`
+        : "/api/email-notifications";
+      try{
+        const result = await cloudRequest(requestPath);
+        const nextNotifications = Array.isArray(result.notifications) ? result.notifications : [];
+        emailIntegration = result.integration || emailIntegration;
+        emailMonitoringActive = Boolean(result.monitoringActive && shiftId);
+        const newlyReceived = emailNotificationsLoaded
+          ? nextNotifications.filter(item => !previousKeys.has(item.eventKey))
+          : [];
+        emailNotifications = nextNotifications;
+        emailNotificationsLoaded = true;
+        renderEmailNotifications();
+        renderShiftReportTable();
+        if(announce && shiftId && currentEmailShiftId() === shiftId && newlyReceived.length){
+          showEmailAlert(newlyReceived[0]);
+        }
+      }catch(error){
+        console.error("Falha ao carregar notificações de e-mail.", error);
+      }
+    })().finally(() => {
+      emailNotificationRequestInFlight = false;
+      emailNotificationRequestPromise = null;
+    });
+    return emailNotificationRequestPromise;
+  }
+
+  function startEmailNotificationPolling(){
+    clearInterval(emailNotificationPollTimer);
+    emailMonitoringActive = Boolean(currentEmailShiftId());
+    renderEmailNotifications();
+    if(!emailMonitoringActive) return;
+    emailNotificationPollTimer = setInterval(() => {
+      if(currentEmailShiftId()) loadEmailNotifications();
+    }, 10000);
+  }
+
+  function stopEmailNotificationPolling(){
+    clearInterval(emailNotificationPollTimer);
+    emailNotificationPollTimer = null;
+    emailMonitoringActive = false;
+    renderEmailNotifications();
+  }
+
+  function closeEmailNotificationsPopover(){
+    $("emailNotificationPopover")?.classList.add("hidden");
+    document.querySelectorAll("[data-email-notifications-toggle]").forEach(button => {
+      button.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function openEmailSettingsModal(){
+    closeEmailNotificationsPopover();
+    $("emailSettingsResult").textContent = "";
+    $("emailSettingsPassword").value = "";
+    $("emailSettingsModal").classList.add("show");
+    setTimeout(() => $("emailSettingsPassword")?.focus(), 80);
+  }
+
+  function closeEmailSettingsModal(){
+    $("emailSettingsModal")?.classList.remove("show");
+    $("emailSettingsResult").textContent = "";
+    $("emailSettingsPassword").value = "";
+  }
+
+  function setEmailNotificationMode(historyMode){
+    emailHistoryMode = Boolean(historyMode);
+    renderEmailNotifications();
+  }
+
+  function toggleEmailNotificationsPopover(){
+    const popover = $("emailNotificationPopover");
+    if(!popover) return;
+    const willOpen = popover.classList.contains("hidden");
+    closeEmailNotificationsPopover();
+    if(willOpen){
+      setEmailNotificationMode(false);
+      popover.classList.remove("hidden");
+      document.querySelectorAll("[data-email-notifications-toggle]").forEach(button => {
+        button.setAttribute("aria-expanded", "true");
+      });
+      loadEmailNotifications({announce:false});
+    }
+  }
+
+  function openEmailHistory(){
+    const popover = $("emailNotificationPopover");
+    if(!popover) return;
+    closeEmailNotificationsPopover();
+    setEmailNotificationMode(true);
+    popover.classList.remove("hidden");
+    document.querySelectorAll("[data-email-notifications-toggle]").forEach(button => {
+      button.setAttribute("aria-expanded", "true");
+    });
+    loadEmailNotifications({announce:false});
+  }
+
+  function applyEmailStatus(eventKeys, action, statusAt){
+    const updatedKeys = new Set(eventKeys);
+    emailNotifications = emailNotifications.map(notification =>
+      updatedKeys.has(notification.eventKey)
+        ? action === "pending"
+          ? {
+              ...notification,
+              readAt:null,
+              respondedAt:null,
+              acknowledgedAt:null
+            }
+          : action === "responded"
+          ? {
+              ...notification,
+              readAt:notification.readAt || statusAt,
+              respondedAt:notification.respondedAt || statusAt,
+              acknowledgedAt:null
+            }
+          : action === "acknowledged"
+            ? {
+                ...notification,
+                readAt:notification.readAt || statusAt,
+                acknowledgedAt:notification.acknowledgedAt || statusAt,
+                respondedAt:null
+              }
+          : {
+              ...notification,
+              readAt:notification.readAt || statusAt,
+              respondedAt:null,
+              acknowledgedAt:null
+            }
+        : notification
+    );
+    renderEmailNotifications();
+    renderShiftReportTable();
+  }
+
+  async function updateSingleEmailStatus(eventKey, action, button){
+    if(!eventKey || !["pending","read","responded","acknowledged"].includes(action)) return;
+    if(button){
+      button.disabled = true;
+      if(!button.matches("select")) button.textContent = "Salvando…";
+    }
+    try{
+      const result = await cloudRequest("/api/email-notification-status", {
+        method:"PUT",
+        body:JSON.stringify({eventKey, action})
+      });
+      applyEmailStatus(
+        result.eventKeys || [eventKey],
+        result.action || action,
+        result.statusAt || new Date().toISOString()
+      );
+      const statusMessages = {
+        pending:"E-mail alterado para pendente.",
+        read:"E-mail marcado como lido.",
+        responded:"E-mail marcado como respondido.",
+        acknowledged:"Ciência do e-mail registrada."
+      };
+      toast(statusMessages[action]);
+    }catch(error){
+      toast(error.message || "Não foi possível atualizar o e-mail.");
+      if(button){
+        button.disabled = false;
+        if(button.matches("select")) renderEmailNotifications();
+        else{
+          button.textContent = action === "responded"
+            ? "Marcar como respondido"
+            : action === "acknowledged"
+              ? "Ciente 👍🏻"
+              : "Marcar como lida";
+        }
+      }
+    }
+  }
+
+  async function markEmailNotificationsRead(){
+    const pendingEventKeys = emailNotifications
+      .filter(notification => !notification.readAt && !notification.respondedAt && !notification.acknowledgedAt && notification.eventKey)
+      .map(notification => notification.eventKey);
+    if(!pendingEventKeys.length){
+      toast("Não há e-mails pendentes.");
+      return;
+    }
+    const button = $("markEmailNotificationsRead");
+    if(button) button.disabled = true;
+    try{
+      const result = await cloudRequest("/api/email-notification-status", {
+        method:"PUT",
+        body:JSON.stringify({eventKeys:pendingEventKeys, action:"read"})
+      });
+      applyEmailStatus(
+        result.eventKeys || pendingEventKeys,
+        "read",
+        result.statusAt || new Date().toISOString()
+      );
+      toast("Todos os e-mails pendentes foram marcados como lidos.");
+    }catch(error){
+      toast(error.message || "Não foi possível atualizar os e-mails.");
+      return;
+    }finally{
+      if(button) button.disabled = false;
+    }
+
+    const latest = emailNotifications.reduce((latestValue, notification) => {
+      const candidate = new Date(notification.createdAt || notification.receivedAt).getTime();
+      return Number.isFinite(candidate) ? Math.max(latestValue, candidate) : latestValue;
+    }, Date.now());
+    localStorage.setItem(EMAIL_LAST_READ_STORAGE_KEY, new Date(latest).toISOString());
+  }
+
+  function queueCloudSave(){
+    clearTimeout(cloudSaveTimer);
+    setCloudStatus("Salvando…");
+    cloudSaveTimer = setTimeout(() => {
+      const snapshot = JSON.parse(JSON.stringify(state));
+      cloudSaveChain = cloudSaveChain
+        .then(() => cloudRequest("/api/state", {method:"PUT", body:JSON.stringify({state:snapshot})}))
+        .then(() => setCloudStatus("Dados sincronizados", "online"))
+        .catch(error => {
+          setCloudStatus("Falha na sincronização", "error");
+          console.error(error);
+        });
+    }, 350);
+  }
+
   function saveState() {
-    localStorage.setItem("nirCemetronFinalStateV2", JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     renderAll();
+    queueCloudSave();
+  }
+
+  async function loadCloudState(){
+    setCloudStatus("Conectando à base…");
+    try{
+      const result = await cloudRequest("/api/state");
+      if(result.exists && result.state){
+        state = result.state;
+        state.records = Array.isArray(state.records) ? state.records : [];
+        state.history = Array.isArray(state.history) ? state.history : [];
+        state.calendarShifts = Array.isArray(state.calendarShifts) ? state.calendarShifts : [];
+        state.sbar = state.sbar || {operationalStatus:"",turnover:"",vacancies:"",background:"",assessment:"",recommendation:""};
+        state.dashboardNotes = typeof state.dashboardNotes === "string" ? state.dashboardNotes : "";
+        state.dashboardNotesUpdatedAt = state.dashboardNotesUpdatedAt || null;
+        state.standardMessages = Array.isArray(state.standardMessages) ? state.standardMessages : [];
+        state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+        state.hospubCensus = normalizeHospubCensus(state.hospubCensus);
+        state.bedCensus = state.bedCensus && typeof state.bedCensus === "object" ? state.bedCensus : {
+          infectologia:{masc2:"",masc3:"",fem:"",tb:"",utiColetivo:"",utiIsolamento:""},
+          clinica:{masc1:"",masc1Isolamento:"",fem:"",utiGeral:""},
+          observations:"",
+          censusDate:"",
+          censusTime:"",
+          performedBy:"",
+          updatedAt:null
+        };
+        seedLatestCensusForCurrentShift();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }else{
+        await cloudRequest("/api/state", {method:"PUT", body:JSON.stringify({state})});
+      }
+      renderAll();
+      ensureCurrentRequestTime();
+      await loadEmailNotifications({announce:false});
+      startEmailNotificationPolling();
+      startHospubCensusPolling();
+      setCloudStatus("Dados sincronizados", "online");
+    }catch(error){
+      setCloudStatus("Base indisponível", "error");
+      console.error(error);
+    }
   }
 
   function toast(message){
@@ -957,6 +3149,595 @@
     el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 1800);
   }
+
+  function showShiftReminder(title, message){
+    $("shiftReminderTitle").textContent = title;
+    $("shiftReminderText").textContent = message;
+    $("shiftReminderModal").classList.add("show");
+    setTimeout(() => $("dismissShiftReminder").focus(), 80);
+  }
+
+  function hideShiftReminder(){
+    $("shiftReminderModal").classList.remove("show");
+  }
+
+
+  const BED_CENSUS_FIELDS = {
+    bedInfMasc2:["infectologia","masc2"],
+    bedInfMasc3:["infectologia","masc3"],
+    bedInfFem:["infectologia","fem"],
+    bedInfTb:["infectologia","tb"],
+    bedInfUtiColetivo:["infectologia","utiColetivo"],
+    bedInfUtiIso:["infectologia","utiIsolamento"],
+    bedClinMasc1:["clinica","masc1"],
+    bedClinMasc1Iso:["clinica","masc1Isolamento"],
+    bedClinFem:["clinica","fem"],
+    bedClinUtiGeral:["clinica","utiGeral"]
+  };
+
+  const BED_CENSUS_LABELS = {
+    infectologia:[
+      ["masc2","Masculina 2 - Coletivo","🛏","male-bed"],
+      ["masc3","Masculina 3 - Coletivo","🛏","male-bed"],
+      ["fem","Feminina - Coletivo","🛏","female-bed"],
+      ["tb","Isolamento - TB","🤚🏻","isolation"],
+      ["utiColetivo","UTI Coletivo","🩸","uti"],
+      ["utiIsolamento","UTI Isolamento","🩸","uti"]
+    ],
+    clinica:[
+      ["masc1","Masculina 1 - Coletivo","🛏","male-bed"],
+      ["masc1Isolamento","Masculina 1 - Isolamento","🤚🏻","isolation"],
+      ["fem","Feminina - Coletivo","🛏","female-bed"],
+      ["utiGeral","UTI Geral - Coletivo","🩸","uti"]
+    ]
+  };
+
+  function buildEmailProductivitySummary(notifications=emailNotifications){
+    const items = Array.isArray(notifications) ? notifications : [];
+    return {
+      received:items.length,
+      responded:items.filter(item => item.respondedAt).length,
+      acknowledged:items.filter(item => item.acknowledgedAt && !item.respondedAt).length,
+      read:items.filter(item => item.readAt && !item.respondedAt && !item.acknowledgedAt).length,
+      pending:items.filter(item => !item.readAt && !item.respondedAt && !item.acknowledgedAt).length,
+      capturedAt:new Date().toISOString()
+    };
+  }
+
+  function seedLatestCensusForCurrentShift(){
+    if(!state.shift || state.shift.status === "ENCERRADO") return;
+    state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+    if(state.shiftCensusUpdates.length || !state.bedCensus?.updatedAt || !state.shift.startedAt) return;
+    const updatedAt = new Date(state.bedCensus.updatedAt).getTime();
+    const startedAt = new Date(state.shift.startedAt).getTime();
+    if(!Number.isFinite(updatedAt) || !Number.isFinite(startedAt) || updatedAt < startedAt) return;
+    state.shiftCensusUpdates.push({
+      ...JSON.parse(JSON.stringify(state.bedCensus)),
+      id:`census-migrated-${updatedAt}`,
+      shiftId:state.shift.id || null,
+      recordedAt:state.bedCensus.updatedAt
+    });
+  }
+
+  function censusUpdateDateTime(census){
+    if(census?.censusDate && census?.censusTime){
+      return `${formatDate(census.censusDate)} às ${census.censusTime}`;
+    }
+    return formatDateTime(census?.recordedAt || census?.updatedAt) || "Não informado";
+  }
+
+  function censusAvailabilitySummary(census){
+    if(Array.isArray(census?.hospubSectors) && census.hospubSectors.length){
+      return `Visual Hospub — ${census.hospubSectors.map(sector => {
+        const operational = sector.operational === null || sector.operational === undefined ? "não informado" : sector.operational;
+        const available = sector.available === null || sector.available === undefined ? "não calculado" : sector.available;
+        const rate = sector.occupancyRate === null || sector.occupancyRate === undefined
+          ? "não calculada"
+          : `${Number(sector.occupancyRate).toFixed(1).replace(".",",")}%`;
+        return `${sector.label}: ${sector.occupied} ocupados / ${operational} operacionais / ${available} disponíveis / ${rate}`;
+      }).join("; ")}`;
+    }
+    const sections = [
+      ["Infectologia", "infectologia"],
+      ["Clínica Médica", "clinica"]
+    ];
+    const summaries = sections.map(([sectionLabel,sectionKey]) => {
+      const values = (BED_CENSUS_LABELS[sectionKey] || [])
+        .map(([key,label]) => {
+          const value = census?.[sectionKey]?.[key];
+          return value === "" || value === null || value === undefined
+            ? null
+            : `${label}: ${value}`;
+        })
+        .filter(Boolean);
+      return values.length ? `${sectionLabel} — ${values.join("; ")}` : null;
+    }).filter(Boolean);
+    return summaries.join(" | ") || "Sem quantitativos informados.";
+  }
+
+  function censusHistoryRowsMarkup(updates, emptyMessage="Nenhuma atualização de censo registrada neste plantão."){
+    const items = Array.isArray(updates) ? updates : [];
+    return items.length
+      ? items.map(census => `<tr>
+          <td>${escapeHtml(censusUpdateDateTime(census))}</td>
+          <td>${escapeHtml(census.performedBy || "Não informado")}</td>
+          <td>${escapeHtml(censusAvailabilitySummary(census))}</td>
+          <td>${escapeHtml(census.observations || "Sem observações.")}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="4" class="empty-table">${escapeHtml(emptyMessage)}</td></tr>`;
+  }
+
+  function censusHistoryExcelRowsMarkup(updates, emptyMessage="Nenhuma atualização de censo registrada neste plantão."){
+    const items = Array.isArray(updates) ? updates : [];
+    return items.length
+      ? items.map(census => `<tr>
+          <td>${escapeHtml(censusUpdateDateTime(census))}</td>
+          <td>${escapeHtml(census.performedBy || "Não informado")}</td>
+          <td colspan="4">${escapeHtml(censusAvailabilitySummary(census))}</td>
+          <td>${escapeHtml(census.observations || "Sem observações.")}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="7">${escapeHtml(emptyMessage)}</td></tr>`;
+  }
+
+  function censusValueCell(value){
+    const numeric = value === "" || value === null || value === undefined ? null : Number(value);
+    if(numeric === null || Number.isNaN(numeric)){
+      return '<td><span class="bed-availability-tag not-informed">Não informado</span></td>';
+    }
+    const statusClass = numeric === 0 ? "unavailable" : "available";
+    return `<td><span class="bed-availability-tag ${statusClass}">${numeric}</span></td>`;
+  }
+
+  function hospubSectorRows(){
+    state.hospubCensus = normalizeHospubCensus(state.hospubCensus);
+    const rows = new Map(HOSPUB_DEFAULT_SECTORS.map(item => [item.key,{...item,occupied:null}]));
+    state.hospubCensus.sectors.forEach(item => {
+      const defaultSector = rows.get(item.key);
+      rows.set(item.key,{...defaultSector,...item,careArea:defaultSector?.careArea || ""});
+    });
+    return [...rows.values()];
+  }
+
+  function hospubCapacityFor(key, source=state.hospubCensus?.capacities){
+    const raw = source?.[key];
+    if(raw === "" || raw === null || raw === undefined) return null;
+    const numeric = Number(raw);
+    return Number.isFinite(numeric) ? Math.max(0,numeric) : null;
+  }
+
+  function hospubCareAreaFor(sector, source=state.hospubCensus?.careAreas){
+    const key = String(sector?.key || "");
+    if(source && Object.prototype.hasOwnProperty.call(source,key)) return String(source[key] || "");
+    return String(sector?.careArea || "");
+  }
+
+  function hospubSectorMetrics(sector, capacities=state.hospubCensus?.capacities){
+    const operational = hospubCapacityFor(sector.key,capacities);
+    const rawOccupied = sector?.occupied;
+    const occupied = rawOccupied === "" || rawOccupied === null || rawOccupied === undefined
+      ? null
+      : (Number.isFinite(Number(rawOccupied)) ? Math.max(0,Number(rawOccupied)) : null);
+    const available = operational === null || occupied === null ? null : operational - occupied;
+    const occupancyRate = operational && occupied !== null ? (occupied / operational) * 100 : null;
+    return {operational,occupied,available,occupancyRate};
+  }
+
+  function hospubMetricClass({available,occupancyRate},type){
+    if(type === "available"){
+      if(available === null) return "unknown";
+      if(available <= 0) return "full";
+      return available <= 2 ? "warning" : "available";
+    }
+    if(occupancyRate === null) return "unknown";
+    if(occupancyRate >= 100) return "full";
+    return occupancyRate >= 85 ? "warning" : "available";
+  }
+
+  function hospubSectorRowClass(sector){
+    const key = String(sector?.key || "");
+    if(key.includes("sala-vermelha")) return "hospub-row-red";
+    if(key.startsWith("uti-")) return "hospub-row-uti";
+    if(key.startsWith("pa-")) return "hospub-row-pa";
+    return "";
+  }
+
+  function renderHospubOccupancy(){
+    const body = $("hospubSectorTableBody");
+    const foot = $("hospubSectorTableFoot");
+    if(!body || !foot) return;
+    const sectors = hospubSectorRows();
+    const capacities = hospubCapacityEditing ? hospubCapacityDraft : state.hospubCensus.capacities;
+    const careAreas = hospubCapacityEditing ? hospubCareAreaDraft : state.hospubCensus.careAreas;
+    body.innerHTML = sectors.map(sector => {
+      const metrics = hospubSectorMetrics(sector,capacities);
+      const encodedKey = encodeURIComponent(sector.key);
+      const careArea = hospubCareAreaFor(sector,careAreas);
+      const normalizedCareArea = careArea.replace(/\s+/g,"");
+      const careClass = normalizedCareArea === "CM"
+        ? "cm"
+        : (normalizedCareArea === "INFECTO/CM" ? "mixed" : (normalizedCareArea.includes("PPL") ? "ppl" : "infecto"));
+      const careTag = hospubCapacityEditing
+        ? `<select class="hospub-care-select" data-hospub-care-key="${encodedKey}" aria-label="Tag assistencial de ${escapeHtml(sector.label)}">${HOSPUB_CARE_AREA_OPTIONS.map(option => `<option value="${escapeHtml(option)}"${option === careArea ? " selected" : ""}>${escapeHtml(option || "Sem tag")}</option>`).join("")}</select>`
+        : (careArea
+        ? `<span class="hospub-care-tag ${careClass}">${escapeHtml(careArea)}</span>`
+        : "");
+      const rowClass = hospubSectorRowClass(sector);
+      const redRoomOccupied = String(sector.key || "").includes("sala-vermelha") && metrics.occupied !== null && metrics.occupied > 0;
+      const operationalCell = hospubCapacityEditing
+        ? `<input class="hospub-capacity-input" data-hospub-capacity-key="${encodedKey}" type="number" min="0" step="1" value="${metrics.operational ?? ""}" aria-label="Leitos operacionais de ${escapeHtml(sector.label)}">`
+        : `<span class="hospub-capacity-value">${metrics.operational ?? "Não informado"}</span>`;
+      const occupiedText = metrics.occupied === null ? "Aguardando Hospub" : String(metrics.occupied);
+      const occupiedAlert = redRoomOccupied
+        ? '<span class="hospub-rate-alert" role="img" aria-label="Paciente internado em Sala Vermelha" title="Paciente internado em Sala Vermelha">⚠</span>'
+        : "";
+      const occupiedClass = metrics.occupied === null ? "unknown" : (redRoomOccupied ? "full" : "available");
+      const availableText = metrics.available === null ? "—" : String(metrics.available);
+      const rateText = metrics.occupancyRate === null ? "—" : `${metrics.occupancyRate.toFixed(1).replace(".",",")}%`;
+      const rateAlert = metrics.occupancyRate !== null && metrics.occupancyRate >= 100
+        ? '<span class="hospub-rate-alert" role="img" aria-label="Ocupação máxima atingida" title="Ocupação máxima atingida">⚠</span>'
+        : "";
+      return `<tr${rowClass ? ` class="${rowClass}"` : ""}>
+        <td><div class="hospub-sector-name"><strong>${escapeHtml(sector.label)}</strong>${careTag}</div></td>
+        <td>${operationalCell}</td>
+        <td><span class="hospub-metric-tag ${occupiedClass}">${occupiedAlert}${occupiedText}</span></td>
+        <td><span class="hospub-metric-tag ${hospubMetricClass(metrics,"available")}">${availableText}</span></td>
+        <td><span class="hospub-metric-tag ${hospubMetricClass(metrics,"rate")}">${rateAlert}${rateText}</span></td>
+      </tr>`;
+    }).join("");
+
+    const sectorMetrics = sectors.map(sector => hospubSectorMetrics(sector,capacities));
+    const operationalMetrics = sectorMetrics.filter(item => item.operational !== null);
+    const occupiedMetrics = sectorMetrics.filter(item => item.occupied !== null);
+    const configuredMetrics = sectorMetrics.filter(item => item.operational !== null && item.occupied !== null);
+    const occupiedTotal = occupiedMetrics.reduce((sum,item) => sum + item.occupied,0);
+    const hasOccupied = occupiedMetrics.length > 0;
+    const operationalTotal = operationalMetrics.reduce((sum,item) => sum + item.operational,0);
+    const configuredOccupiedTotal = configuredMetrics.reduce((sum,item) => sum + item.occupied,0);
+    const availableTotal = configuredMetrics.reduce((sum,item) => sum + item.available,0);
+    const comparableOperationalTotal = configuredMetrics.reduce((sum,item) => sum + item.operational,0);
+    const overallRate = comparableOperationalTotal > 0 ? (configuredOccupiedTotal / comparableOperationalTotal) * 100 : null;
+    const totalMetrics = {available:configuredMetrics.length ? availableTotal : null,occupancyRate:overallRate};
+    const totalRateText = overallRate === null ? "—" : `${overallRate.toFixed(1).replace(".",",")}%`;
+    foot.innerHTML = `<tr>
+      <td>TOTAL</td>
+      <td><span class="hospub-total-number">${operationalMetrics.length ? operationalTotal : "—"}</span></td>
+      <td><span class="hospub-total-number">${hasOccupied ? occupiedTotal : "—"}</span></td>
+      <td><span class="hospub-metric-tag ${hospubMetricClass(totalMetrics,"available")}">${configuredMetrics.length ? availableTotal : "—"}</span></td>
+      <td><span class="hospub-metric-tag ${hospubMetricClass(totalMetrics,"rate")}">${totalRateText}</span></td>
+    </tr>`;
+    $("hospubOperationalTotal").textContent = operationalMetrics.length ? String(operationalTotal) : "—";
+    $("hospubOccupiedTotal").textContent = hasOccupied ? String(occupiedTotal) : "—";
+    $("hospubAvailableTotal").textContent = configuredMetrics.length ? String(availableTotal) : "—";
+    $("hospubOccupancyRate").textContent = overallRate === null ? "—" : `${overallRate.toFixed(1).replace(".",",")}%`;
+    $("hospubLastUpdate").textContent = state.hospubCensus.capturedAt
+      ? formatDateTime(state.hospubCensus.capturedAt)
+      : "Nenhuma atualização recebida.";
+
+    const status = $("hospubConnectionStatus");
+    status.className = `hospub-connection-status${hospubConnectorStatusClass ? ` ${hospubConnectorStatusClass}` : ""}`;
+    status.textContent = !state.shift || isShiftClosed()
+      ? "Monitoramento pausado — inicie um plantão"
+      : hospubConnectorMessage;
+    $("hospubRefreshNow").disabled = !state.shift || isShiftClosed() || hospubScanInProgress;
+    $("toggleHospubCapacityConfig").textContent = hospubCapacityEditing ? "Salvar configuração" : "Configurar leitos e tags";
+    $("cancelHospubCapacityConfig").classList.toggle("hidden",!hospubCapacityEditing);
+    $("hospubCapacityHelp").textContent = hospubCapacityEditing
+      ? "Informe os leitos operacionais, escolha a tag assistencial de cada setor e clique em Salvar configuração."
+      : "Configure os leitos operacionais e as tags assistenciais de cada setor.";
+  }
+
+  function setHospubConnectorStatus(message,className=""){
+    hospubConnectorMessage = message;
+    hospubConnectorStatusClass = className;
+    renderHospubOccupancy();
+  }
+
+  function hospubFingerprint(sectors){
+    return sectors
+      .map(item => `${item.key}:${item.occupied}`)
+      .sort()
+      .join("|");
+  }
+
+  function hospubHistorySnapshot(sectors,capturedAt){
+    return sectors.map(sector => {
+      const metrics = hospubSectorMetrics(sector);
+      return {
+        key:sector.key,
+        label:sector.label,
+        operational:metrics.operational,
+        occupied:metrics.occupied,
+        available:metrics.available,
+        occupancyRate:metrics.occupancyRate
+      };
+    });
+  }
+
+  function applyHospubCensusUpdate(payload){
+    if(!state.shift || isShiftClosed()) return;
+    const sectors = Array.isArray(payload?.sectors)
+      ? payload.sectors.slice(0,50).map(item => {
+          const rawOccupied = item?.occupied;
+          return {
+            key:String(item?.key || "").slice(0,90),
+            label:String(item?.label || "Setor não identificado").slice(0,100),
+            occupied:rawOccupied === "" || rawOccupied === null || rawOccupied === undefined
+              ? null
+              : (Number.isFinite(Number(rawOccupied)) ? Math.max(0,Math.trunc(Number(rawOccupied))) : null)
+          };
+        }).filter(item => /^[a-z0-9-]{1,90}$/.test(item.key) && item.occupied !== null)
+      : [];
+    if(!sectors.length){
+      hospubScanInProgress = false;
+      setHospubConnectorStatus("Nenhum setor válido foi localizado no Hospub","error");
+      return;
+    }
+    const receivedDate = new Date(payload.capturedAt || Date.now());
+    const safeDate = Number.isNaN(receivedDate.getTime()) ? new Date() : receivedDate;
+    const capturedAt = safeDate.toISOString();
+    const localDate = `${safeDate.getFullYear()}-${String(safeDate.getMonth()+1).padStart(2,"0")}-${String(safeDate.getDate()).padStart(2,"0")}`;
+    const localTime = `${String(safeDate.getHours()).padStart(2,"0")}:${String(safeDate.getMinutes()).padStart(2,"0")}`;
+    const skippedSectors = Array.isArray(payload?.skippedSectors)
+      ? payload.skippedSectors.slice(0,50).map(item => String(item?.label || "Setor não identificado").slice(0,100))
+      : [];
+    const fingerprint = hospubFingerprint(sectors);
+    const shouldRecord = fingerprint !== state.hospubCensus.lastFingerprint
+      || state.hospubCensus.lastRecordedShiftId !== state.shift.id;
+    state.hospubCensus = normalizeHospubCensus({
+      ...state.hospubCensus,
+      sectors,
+      capturedAt,
+      lastFingerprint:fingerprint,
+      lastRecordedShiftId:shouldRecord ? state.shift.id : state.hospubCensus.lastRecordedShiftId
+    });
+    if(shouldRecord){
+      state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+      state.shiftCensusUpdates.push({
+        id:crypto.randomUUID ? crypto.randomUUID() : `hospub-census-${Date.now()}`,
+        shiftId:state.shift.id || null,
+        recordedAt:capturedAt,
+        updatedAt:capturedAt,
+        censusDate:localDate,
+        censusTime:localTime,
+        performedBy:"Visual Hospub — automático",
+        observations:skippedSectors.length
+          ? `Atualização parcial pelo Visual Hospub. Setores não lidos: ${skippedSectors.join(", ")}. Nenhum dado identificável do paciente foi armazenado.`
+          : "Atualização automática por setor. Nenhum dado identificável do paciente foi armazenado.",
+        hospubSectors:hospubHistorySnapshot(sectors,capturedAt)
+      });
+    }
+    hospubScanInProgress = false;
+    clearTimeout(hospubCensusResponseTimer);
+    setHospubConnectorStatus(
+      skippedSectors.length
+        ? `Atualização parcial — ${skippedSectors.length} setor(es) não lido(s)`
+        : `Conector Hospub: conectado${hospubConnectorVersion ? ` — v${hospubConnectorVersion}` : ""}`,
+      skippedSectors.length ? "warning" : "connected"
+    );
+    saveState();
+    toast(skippedSectors.length
+      ? `Ocupação atualizada parcialmente; ${skippedSectors.length} setor(es) não foram lidos.`
+      : (shouldRecord ? "Ocupação atualizada e registrada no plantão." : "Ocupação conferida; não houve alteração nos totais."));
+  }
+
+  function requestHospubCensusUpdate({manual=false}={}){
+    if(!state.shift || isShiftClosed()){
+      if(manual) toast("Inicie um plantão para atualizar a ocupação pelo Hospub.");
+      renderHospubOccupancy();
+      return;
+    }
+    hospubScanInProgress = true;
+    setHospubConnectorStatus("Consultando os setores do Hospub…","scanning");
+    const requestId = crypto.randomUUID ? crypto.randomUUID() : `hospub-${Date.now()}`;
+    window.postMessage({source:HOSPUB_APP_SOURCE,type:"HOSPUB_SCAN_REQUEST",requestId},window.location.origin);
+    clearTimeout(hospubCensusResponseTimer);
+    hospubCensusResponseTimer = setTimeout(() => {
+      if(!hospubScanInProgress) return;
+      hospubScanInProgress = false;
+      setHospubConnectorStatus(
+        hospubConnectorDetected ? "Abra e autentique o Visual Hospub em outra aba" : "Instale ou ative o conector Hospub",
+        "error"
+      );
+      if(manual) toast(hospubConnectorDetected ? "O Visual Hospub não respondeu." : "Conector Hospub não detectado.");
+    },10000);
+  }
+
+  function stopHospubCensusPolling(){
+    clearInterval(hospubCensusPollTimer);
+    clearTimeout(hospubCensusInitialTimer);
+    clearTimeout(hospubCensusResponseTimer);
+    hospubCensusPollTimer = null;
+    hospubCensusInitialTimer = null;
+    hospubScanInProgress = false;
+    renderHospubOccupancy();
+  }
+
+  function startHospubCensusPolling(){
+    stopHospubCensusPolling();
+    if(!state.shift || isShiftClosed()) return;
+    hospubCensusInitialTimer = setTimeout(() => requestHospubCensusUpdate(),1500);
+    hospubCensusPollTimer = setInterval(() => requestHospubCensusUpdate(),HOSPUB_POLL_INTERVAL_MS);
+  }
+
+  window.addEventListener("message",event => {
+    if(event.source !== window || event.origin !== window.location.origin) return;
+    const message = event.data;
+    if(!message || message.source !== HOSPUB_CONNECTOR_SOURCE) return;
+    clearTimeout(hospubCensusResponseTimer);
+    hospubConnectorDetected = true;
+    hospubConnectorVersion = String(message.version || hospubConnectorVersion || "");
+    if(message.type === "CONNECTOR_READY"){
+      setHospubConnectorStatus(`Conector disponível${hospubConnectorVersion ? ` — v${hospubConnectorVersion}` : ""}`,"connected");
+      return;
+    }
+    if(message.type === "SCAN_STATUS"){
+      if(message.status === "scanning"){
+        hospubScanInProgress = true;
+        setHospubConnectorStatus(message.message || "Consultando os setores do Hospub…","scanning");
+        hospubCensusResponseTimer = setTimeout(() => {
+          if(!hospubScanInProgress) return;
+          hospubScanInProgress = false;
+          setHospubConnectorStatus("A consulta ao Hospub demorou mais que o esperado","error");
+        },120000);
+      }else if(message.status === "error"){
+        hospubScanInProgress = false;
+        setHospubConnectorStatus(message.message || "Não foi possível consultar o Hospub","error");
+      }
+      return;
+    }
+    if(message.type === "CENSUS_RESULT") applyHospubCensusUpdate(message.payload || {});
+  });
+
+  function renderBedCensus(){
+    const census = state.bedCensus || {};
+    const infectologia = $("bedCensusInfectologiaResult");
+    const clinica = $("bedCensusClinicaResult");
+
+    if(infectologia){
+      infectologia.innerHTML = BED_CENSUS_LABELS.infectologia.map(([key,label,icon,iconClass]) =>
+        `<tr><td><div class="clinic-name-cell"><span class="clinic-icon ${iconClass}" aria-hidden="true">${icon}</span><span class="clinic-name-text">${escapeHtml(label)}</span></div></td>${censusValueCell(census.infectologia?.[key])}</tr>`
+      ).join("");
+    }
+
+    if(clinica){
+      clinica.innerHTML = BED_CENSUS_LABELS.clinica.map(([key,label,icon,iconClass]) =>
+        `<tr><td><div class="clinic-name-cell"><span class="clinic-icon ${iconClass}" aria-hidden="true">${icon}</span><span class="clinic-name-text">${escapeHtml(label)}</span></div></td>${censusValueCell(census.clinica?.[key])}</tr>`
+      ).join("");
+    }
+
+    if($("bedCensusLastUpdate")){
+      if(census.censusDate && census.censusTime){
+        $("bedCensusLastUpdate").textContent = `${formatDate(census.censusDate)} às ${census.censusTime}`;
+      }else{
+        $("bedCensusLastUpdate").textContent = census.updatedAt ? formatDateTime(census.updatedAt) : "Nenhum censo registrado.";
+      }
+    }
+
+    if($("bedCensusPerformedBy")){
+      $("bedCensusPerformedBy").textContent = census.performedBy ? `Realizado por: ${census.performedBy}` : "";
+    }
+
+    if($("bedCensusObservationsResult")){
+      $("bedCensusObservationsResult").textContent = census.observations || "Nenhuma observação registrada.";
+    }
+  }
+
+  function loadBedCensusForm(){
+    const census = state.bedCensus || {};
+    Object.entries(BED_CENSUS_FIELDS).forEach(([id,path]) => {
+      if($(id)) $(id).value = census?.[path[0]]?.[path[1]] ?? "";
+    });
+    if($("bedCensusObservations")) $("bedCensusObservations").value = census.observations || "";
+    if($("bedCensusDate")) $("bedCensusDate").value = census.censusDate || new Date().toISOString().slice(0,10);
+    if($("bedCensusTime")) $("bedCensusTime").value = census.censusTime || new Date().toTimeString().slice(0,5);
+    if($("bedCensusPerformedByInput")) $("bedCensusPerformedByInput").value = census.performedBy || "";
+  }
+
+  function readBedCensusForm(){
+    const result = {
+      infectologia:{},
+      clinica:{},
+      observations:$("bedCensusObservations")?.value.trim() || "",
+      censusDate:$("bedCensusDate")?.value || "",
+      censusTime:$("bedCensusTime")?.value || "",
+      performedBy:$("bedCensusPerformedByInput")?.value.trim() || "",
+      updatedAt:new Date().toISOString()
+    };
+    Object.entries(BED_CENSUS_FIELDS).forEach(([id,path]) => {
+      const raw = $(id)?.value ?? "";
+      result[path[0]][path[1]] = raw === "" ? "" : Math.max(0, Number(raw));
+    });
+    return result;
+  }
+
+  function clearBedCensusForm(){
+    Object.keys(BED_CENSUS_FIELDS).forEach(id => { if($(id)) $(id).value = ""; });
+    if($("bedCensusObservations")) $("bedCensusObservations").value = "";
+    if($("bedCensusPerformedByInput")) $("bedCensusPerformedByInput").value = "";
+    if($("bedCensusDate")) $("bedCensusDate").value = new Date().toISOString().slice(0,10);
+    if($("bedCensusTime")) $("bedCensusTime").value = new Date().toTimeString().slice(0,5);
+  }
+
+  function openBedCensusModal(){
+    loadBedCensusForm();
+    $("bedCensusModal")?.classList.add("show");
+    setTimeout(() => $("bedCensusDate")?.focus(), 80);
+  }
+
+  function closeBedCensusModal(){
+    $("bedCensusModal")?.classList.remove("show");
+  }
+
+  function renderDashboardTools(){
+    const notes = $("dashboardNotes");
+    if(notes && document.activeElement !== notes) notes.value = state.dashboardNotes || "";
+    if($("noteSaveMeta")){
+      $("noteSaveMeta").textContent = state.dashboardNotesUpdatedAt
+        ? `Salvo em ${formatDateTime(state.dashboardNotesUpdatedAt)}`
+        : "Salvo na base integrada";
+    }
+    renderStandardMessages();
+  }
+
+  function renderStandardMessages(){
+    const container = $("standardMessagesList");
+    if(!container) return;
+    const messages = state.standardMessages.slice().sort((a,b) => String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")));
+    container.innerHTML = messages.length ? messages.map(message => `
+      <article class="standard-message-card">
+        <h4 class="standard-message-title">${escapeHtml(message.title || "Mensagem sem título")}</h4>
+        <p class="standard-message-text">${escapeHtml(message.text || "")}</p>
+        <div class="standard-message-actions">
+          <button class="btn btn-primary" type="button" onclick="copyStandardMessage('${message.id}')">Copiar</button>
+          <button class="btn btn-edit" type="button" onclick="editStandardMessage('${message.id}')">Editar</button>
+          <button class="btn btn-danger" type="button" onclick="deleteStandardMessage('${message.id}')">Excluir</button>
+        </div>
+      </article>`).join("") : '<div class="standard-messages-empty">Nenhuma mensagem padrão cadastrada.</div>';
+  }
+
+  function clearStandardMessageForm(){
+    editingStandardMessageId = null;
+    $("standardMessageTitle").value = "";
+    $("standardMessageText").value = "";
+    $("saveStandardMessage").textContent = "Salvar mensagem";
+  }
+
+  async function copyTextToClipboard(text){
+    try{ await navigator.clipboard.writeText(text); }
+    catch{
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+  }
+
+  window.copyStandardMessage = async function(id){
+    const message = state.standardMessages.find(item => item.id === id);
+    if(!message) return;
+    await copyTextToClipboard(message.text || "");
+    toast("Mensagem copiada.");
+  };
+
+  window.editStandardMessage = function(id){
+    const message = state.standardMessages.find(item => item.id === id);
+    if(!message) return;
+    editingStandardMessageId = id;
+    $("standardMessageTitle").value = message.title || "";
+    $("standardMessageText").value = message.text || "";
+    $("saveStandardMessage").textContent = "Atualizar mensagem";
+    $("standardMessageTitle").focus();
+  };
+
+  window.deleteStandardMessage = function(id){
+    if(!confirm("Deseja excluir esta mensagem padrão?")) return;
+    state.standardMessages = state.standardMessages.filter(item => item.id !== id);
+    if(editingStandardMessageId === id) clearStandardMessageForm();
+    saveState();
+    toast("Mensagem excluída.");
+  };
 
   function formatDate(date){
     if(!date) return "";
@@ -1082,10 +3863,46 @@
   }
 
   function renderCounts(){
-    $("countYellow").textContent = state.records.filter(r=>r.module==="yellow").length;
-    $("countBlue").textContent = state.records.filter(r=>r.module==="blue").length;
-    $("countGreen").textContent = state.records.filter(r=>r.module==="green").length;
-    $("countRed").textContent = state.records.filter(r=>r.module==="red").length;
+    const records = Array.isArray(state.records) ? state.records : [];
+    const counts = {
+      yellow:records.filter(r=>r.module==="yellow").length,
+      blue:records.filter(r=>r.module==="blue").length,
+      green:records.filter(r=>r.module==="green").length,
+      red:records.filter(r=>r.module==="red").length
+    };
+    const total = records.length;
+
+    $("countYellow").textContent = counts.yellow;
+    $("countBlue").textContent = counts.blue;
+    $("countGreen").textContent = counts.green;
+    $("countRed").textContent = counts.red;
+    if($("countTotalRecords")) $("countTotalRecords").textContent = total;
+
+    const percent = value => total ? (value / total) * 100 : 0;
+    const formatChartValue = value => `${value} (${percent(value).toFixed(total ? 1 : 0).replace(".", ",")}%)`;
+
+    if($("chartTotalRecords")) $("chartTotalRecords").textContent = total;
+    if($("chartYellowValue")) $("chartYellowValue").textContent = formatChartValue(counts.yellow);
+    if($("chartBlueValue")) $("chartBlueValue").textContent = formatChartValue(counts.blue);
+    if($("chartGreenValue")) $("chartGreenValue").textContent = formatChartValue(counts.green);
+    if($("chartRedValue")) $("chartRedValue").textContent = formatChartValue(counts.red);
+
+    const donut = $("recordsDonut");
+    if(donut){
+      const yellowEnd = percent(counts.yellow) * 3.6;
+      const blueEnd = yellowEnd + percent(counts.blue) * 3.6;
+      const greenEnd = blueEnd + percent(counts.green) * 3.6;
+      donut.style.setProperty("--chart-yellow", `${yellowEnd}deg`);
+      donut.style.setProperty("--chart-blue", `${blueEnd}deg`);
+      donut.style.setProperty("--chart-green", `${greenEnd}deg`);
+      donut.classList.toggle("empty", total === 0);
+      donut.setAttribute(
+        "aria-label",
+        total
+          ? `Total de ${total} registros: ${counts.yellow} pendências, ${counts.blue} transferências, avaliações ou exames, ${counts.green} autorizações e ${counts.red} negativas.`
+          : "Nenhum registro no plantão atual."
+      );
+    }
   }
 
   function renderSbarFields(){
@@ -1102,10 +3919,23 @@ $("background").value = state.sbar.background || "";
     const body = $("shiftReportTableBody");
     const summary = $("selectedShiftSummary");
     const shift = state.shift || {};
+    const archivedItem = state.shift?.id
+      ? state.history.find(item => item.id === state.shift.id)
+      : null;
+    const emailSummary = archivedItem?.emailSummary || buildEmailProductivitySummary();
+    const censusUpdates = Array.isArray(archivedItem?.censusUpdates)
+      ? archivedItem.censusUpdates
+      : state.shiftCensusUpdates;
 
     summary.textContent = state.shift
       ? `${formatDate(shift.date)} — ${shift.type || "Plantão não informado"} — ${shift.professional || "Plantonista não informado"} — ${getShiftStatus()}${shift.endedAt ? ` — Encerrado em ${formatDateTime(shift.endedAt)}` : ""}`
       : "Nenhum plantão selecionado.";
+
+    if($("shiftEmailReceived")) $("shiftEmailReceived").textContent = String(emailSummary.received || 0);
+    if($("shiftEmailResponded")) $("shiftEmailResponded").textContent = String(emailSummary.responded || 0);
+    if($("shiftEmailAcknowledged")) $("shiftEmailAcknowledged").textContent = String(emailSummary.acknowledged || 0);
+    if($("shiftCensusUpdateCount")) $("shiftCensusUpdateCount").textContent = String(censusUpdates.length);
+    if($("shiftCensusHistoryBody")) $("shiftCensusHistoryBody").innerHTML = censusHistoryRowsMarkup(censusUpdates);
 
     if(!state.records.length){
       body.innerHTML = `<tr><td colspan="9" class="empty-table">Nenhum registro cadastrado neste plantão.</td></tr>`;
@@ -1204,7 +4034,7 @@ $("background").value = state.sbar.background || "";
     const items = getFilteredHistory();
 
     if(!items.length){
-      body.innerHTML = `<tr><td colspan="6" class="empty-table">Nenhum plantão encerrado encontrado.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="8" class="empty-table">Nenhum plantão encerrado encontrado.</td></tr>`;
       return;
     }
 
@@ -1215,6 +4045,10 @@ $("background").value = state.sbar.background || "";
         <td>${escapeHtml(item.shift.professional || "")}</td>
         <td>${escapeHtml(formatDateTime(item.shift.endedAt || item.archivedAt))}</td>
         <td>${item.records?.length || 0}</td>
+        <td>${item.emailSummary
+          ? `${item.emailSummary.received || 0} recebidos / ${item.emailSummary.responded || 0} respondidos / ${item.emailSummary.acknowledged || 0} cientes`
+          : "—"}</td>
+        <td>${Array.isArray(item.censusUpdates) ? item.censusUpdates.length : "—"}</td>
         <td><button class="btn btn-primary" onclick="viewHistoryReport('${item.id}')">Visualizar relatório</button></td>
       </tr>
     `).join("");
@@ -1230,6 +4064,19 @@ $("background").value = state.sbar.background || "";
       `${formatDate(item.shift.date)} — ${item.shift.type || ""} — ${item.shift.professional || ""} — ENCERRADO EM ${formatDateTime(item.shift.endedAt || item.archivedAt)}`;
 
     const records = Array.isArray(item.records) ? item.records.slice() : [];
+    const emailSummary = item.emailSummary || null;
+    const censusUpdates = Array.isArray(item.censusUpdates) ? item.censusUpdates : [];
+
+    $("historyEmailReceived").textContent = emailSummary ? String(emailSummary.received || 0) : "—";
+    $("historyEmailResponded").textContent = emailSummary ? String(emailSummary.responded || 0) : "—";
+    $("historyEmailAcknowledged").textContent = emailSummary ? String(emailSummary.acknowledged || 0) : "—";
+    $("historyCensusUpdateCount").textContent = Array.isArray(item.censusUpdates) ? String(censusUpdates.length) : "—";
+    $("historyCensusHistoryBody").innerHTML = censusHistoryRowsMarkup(
+      censusUpdates,
+      Array.isArray(item.censusUpdates)
+        ? "Nenhuma atualização de censo registrada neste plantão."
+        : "Informação não registrada nas versões anteriores."
+    );
 
     $("historyReportBody").innerHTML = records.length
       ? records.map((record, index) => {
@@ -1259,6 +4106,9 @@ $("background").value = state.sbar.background || "";
       type: item.shift.type || "NÃO INFORMADO",
       professional: item.shift.professional || "NÃO INFORMADO",
       endedAt: formatDateTime(item.shift.endedAt || item.archivedAt),
+      emailSummary:item.emailSummary || null,
+      censusUpdates:Array.isArray(item.censusUpdates) ? item.censusUpdates : [],
+      censusHistoryAvailable:Array.isArray(item.censusUpdates),
       records: Array.isArray(item.records) ? item.records.slice().sort((a,b) => String(a.requestTime).localeCompare(String(b.requestTime))) : []
     };
   }
@@ -1269,6 +4119,13 @@ $("background").value = state.sbar.background || "";
       alert("Selecione um plantão encerrado.");
       return;
     }
+    const emailSummary = data.emailSummary;
+    const censusRows = censusHistoryRowsMarkup(
+      data.censusUpdates,
+      data.censusHistoryAvailable
+        ? "Nenhuma atualização de censo registrada neste plantão."
+        : "Informação não registrada nas versões anteriores."
+    );
 
     const rows = data.records.length ? data.records.map(record => {
       const meta = moduleMeta[record.module] || {title:"REGISTRO"};
@@ -1284,12 +4141,22 @@ $("background").value = state.sbar.background || "";
     }).join("") : `<tr><td colspan="7">Sem registros neste plantão.</td></tr>`;
 
     const doc = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>${escapeHtml(data.title)}</title>
-    <style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial;color:#111827}h1{font-size:20px;color:#0f2747}
+    <style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial;color:#111827}h1{font-size:20px;color:#0f2747}h2{margin:14px 0 7px;color:#0f2747;font-size:13px}
+    .productivity{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}.metric{padding:8px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;font-size:11px}.metric strong{display:block;margin-top:3px;font-size:17px;color:#0f2747}
     table{width:100%;border-collapse:collapse;font-size:10px}th{background:#0f2747;color:white;text-align:left;padding:7px;border:1px solid #cbd5e1}
     td{padding:7px;border:1px solid #cbd5e1;vertical-align:top}.meta{margin-bottom:14px;font-size:12px;line-height:1.6}</style></head>
     <body><h1>${escapeHtml(data.title)}</h1><div class="meta"><strong>Data:</strong> ${escapeHtml(data.date)}<br>
     <strong>Plantão:</strong> ${escapeHtml(data.type)}<br><strong>Plantonista:</strong> ${escapeHtml(data.professional)}<br>
     <strong>Encerramento:</strong> ${escapeHtml(data.endedAt)}</div>
+    <div class="productivity">
+      <div class="metric">E-mails recebidos<strong>${emailSummary ? emailSummary.received || 0 : "—"}</strong></div>
+      <div class="metric">E-mails respondidos<strong>${emailSummary ? emailSummary.responded || 0 : "—"}</strong></div>
+      <div class="metric">E-mails com ciência<strong>${emailSummary ? emailSummary.acknowledged || 0 : "—"}</strong></div>
+      <div class="metric">Atualizações do censo<strong>${data.censusHistoryAvailable ? data.censusUpdates.length : "—"}</strong></div>
+    </div>
+    <h2>ATUALIZAÇÕES DO CENSO NO PLANTÃO</h2>
+    <table><thead><tr><th>Data e hora</th><th>Responsável</th><th>Resumo do censo</th><th>Observações</th></tr></thead><tbody>${censusRows}</tbody></table>
+    <h2>REGISTROS DE REGULAÇÃO DO PLANTÃO</h2>
     <table><thead><tr><th>Hora</th><th>Tipo</th><th>Paciente</th><th>Origem</th><th>HD</th><th>Destino</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
 
     const win = window.open("", "_blank", "width=1200,height=800");
@@ -1304,6 +4171,13 @@ $("background").value = state.sbar.background || "";
       alert("Selecione um plantão encerrado.");
       return;
     }
+    const emailSummary = data.emailSummary;
+    const censusRows = censusHistoryExcelRowsMarkup(
+      data.censusUpdates,
+      data.censusHistoryAvailable
+        ? "Nenhuma atualização de censo registrada neste plantão."
+        : "Informação não registrada nas versões anteriores."
+    );
 
     const rows = data.records.map(record => {
       const meta = moduleMeta[record.module] || {title:"REGISTRO"};
@@ -1315,6 +4189,14 @@ $("background").value = state.sbar.background || "";
     <body><table><tr><td colspan="7"><strong>${escapeHtml(data.title)}</strong></td></tr>
     <tr><td class="meta">Data</td><td>${escapeHtml(data.date)}</td><td class="meta">Plantão</td><td colspan="4">${escapeHtml(data.type)}</td></tr>
     <tr><td class="meta">Plantonista</td><td>${escapeHtml(data.professional)}</td><td class="meta">Encerramento</td><td colspan="4">${escapeHtml(data.endedAt)}</td></tr>
+    <tr><td class="meta">E-mails recebidos</td><td>${emailSummary ? emailSummary.received || 0 : "—"}</td><td class="meta">Respondidos</td><td>${emailSummary ? emailSummary.responded || 0 : "—"}</td><td class="meta">Cientes</td><td>${emailSummary ? emailSummary.acknowledged || 0 : "—"}</td><td></td></tr>
+    <tr><td class="meta">Atualizações do censo</td><td>${data.censusHistoryAvailable ? data.censusUpdates.length : "—"}</td><td colspan="5"></td></tr>
+    <tr><td colspan="7"></td></tr>
+    <tr><td colspan="7"><strong>Atualizações do censo no plantão</strong></td></tr>
+    <tr><th>Data e hora</th><th>Responsável</th><th colspan="4">Resumo do censo</th><th>Observações</th></tr>
+    ${censusRows}
+    <tr><td colspan="7"></td></tr>
+    <tr><td colspan="7"><strong>Registros de regulação do plantão</strong></td></tr>
     <tr><th>Hora</th><th>Tipo</th><th>Paciente</th><th>Origem</th><th>HD</th><th>Destino</th><th>Status</th></tr>${rows || `<tr><td colspan="7">Sem registros neste plantão.</td></tr>`}</table></body></html>`;
 
     downloadBlob("\ufeff" + workbook, "application/vnd.ms-excel;charset=utf-8", `historico_${safeFilename(data.date)}_${safeFilename(data.type)}.xls`);
@@ -1355,6 +4237,26 @@ $("background").value = state.sbar.background || "";
     const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(); for(let i=0;i<first;i++)h+='<div class="calendar-day empty"></div>';
     for(let day=1;day<=days;day++){const key=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;const ev=state.calendarShifts.filter(x=>x.date===key).map(x=>`<div class="calendar-event ${calendarEventClass(x)}" onclick="editCalendarShift('${x.id}')"><strong>${escapeHtml(x.turn)} — ${escapeHtml(calendarSectorLabel(x.sector))}</strong>Início: ${escapeHtml(x.start || "Não informado")}<br>Término: ${escapeHtml(x.end || calculateShiftEnd(x.start, x.hours) || "Não informado")}<br>Carga horária: ${escapeHtml(String(x.hours || "Não informado"))}${x.hours ? "h" : ""}</div>`).join("");h+=`<div class="calendar-day"><div class="calendar-date-number">${day}</div>${ev}</div>`;} grid.innerHTML=h;
     const items=calendarMonthItems();
+    const mobileAgenda = $("calendarMobileAgenda");
+    if(mobileAgenda){
+      const grouped = items.reduce((acc,item) => {
+        (acc[item.date] ||= []).push(item);
+        return acc;
+      }, {});
+      mobileAgenda.innerHTML = items.length
+        ? Object.entries(grouped).map(([date,dateItems]) => {
+            const dateLabel = localDateOnly(date).toLocaleDateString("pt-BR", {weekday:"long", day:"2-digit", month:"long"});
+            const events = dateItems.map(item => `
+              <button class="calendar-event ${calendarEventClass(item)}" type="button" onclick="editCalendarShift('${item.id}')">
+                <strong>${escapeHtml(item.turn || "Plantão")} — ${escapeHtml(calendarSectorLabel(item.sector))}</strong>
+                Início: ${escapeHtml(item.start || "Não informado")}<br>
+                Término: ${escapeHtml(item.end || calculateShiftEnd(item.start,item.hours) || "Não informado")}<br>
+                Carga horária: ${escapeHtml(String(item.hours || "Não informado"))}${item.hours ? "h" : ""}
+              </button>`).join("");
+            return `<div class="calendar-mobile-day"><div class="calendar-mobile-date">${escapeHtml(dateLabel)}</div>${events}</div>`;
+          }).join("")
+        : '<div class="calendar-mobile-empty">Nenhum plantão cadastrado neste mês.</div>';
+    }
     const monthlyHours = items.reduce((total,item)=>{
       const value = Number(item.hours);
       return total + (Number.isFinite(value) ? value : 0);
@@ -1428,7 +4330,7 @@ $("background").value = state.sbar.background || "";
         }).join("")
       : '<tr><td colspan="8" class="empty-table">Nenhum plantão cadastrado neste mês.</td></tr>';
   }
-  window.editCalendarShift=function(id){const x=state.calendarShifts.find(v=>v.id===id);if(!x)return;calendarEditingId=id;$("calendarShiftDate").value=x.date;$("calendarShiftTurn").value=x.turn;$("calendarShiftSector").value=x.sector||"NIR";$("calendarShiftStart").value=x.start||"";$("calendarShiftHours").value=x.hours;$("calendarShiftEnd").value=x.end||calculateShiftEnd(x.start,x.hours);$("saveCalendarShift").textContent="Atualizar plantão";};
+  window.editCalendarShift=function(id){const x=state.calendarShifts.find(v=>v.id===id);if(!x)return;calendarEditingId=id;$("calendarShiftDate").value=x.date;$("calendarShiftTurn").value=x.turn;$("calendarShiftSector").value=x.sector||"NIR";$("calendarShiftStart").value=x.start||"";$("calendarShiftHours").value=x.hours;$("calendarShiftEnd").value=x.end||calculateShiftEnd(x.start,x.hours);$("saveCalendarShift").textContent="Atualizar plantão";if(window.matchMedia("(max-width:700px)").matches)window.scrollTo({top:0,behavior:"smooth"});};
   window.deleteCalendarShift=function(id){if(!confirm("Deseja excluir este plantão do calendário?"))return;state.calendarShifts=state.calendarShifts.filter(x=>x.id!==id);saveState();toast("Plantão removido do calendário.");};
   function clearCalendarShiftForm(){$("calendarShiftDate").value="";$("calendarShiftTurn").value="";$("calendarShiftSector").value="";$("calendarShiftStart").value="";$("calendarShiftHours").value="";$("calendarShiftEnd").value="";calendarEditingId=null;$("saveCalendarShift").textContent="Cadastrar plantão";}
 
@@ -1646,6 +4548,10 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     renderAuthorizationOptions();
     renderHistoryTable();
     renderCalendar();
+    renderBedCensus();
+    renderHospubOccupancy();
+    renderDashboardTools();
+    renderEmailNotifications();
 
     const locked = isShiftClosed();
     ["module","requestTime","patient","origin","hd","destination","status","addRecord","clearForm"].forEach(id => {
@@ -1696,20 +4602,123 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     }
   }
 
-  document.querySelectorAll("nav button").forEach(btn => {
+  document.querySelectorAll("nav button[data-view]").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
       document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
       $(btn.dataset.view).classList.remove("hidden");
       if(btn.dataset.view === "registros") ensureCurrentRequestTime();
+      setCurrentViewTitle(btn);
+      closeMobileMenu();
+      window.scrollTo({top:0, behavior:"smooth"});
     });
   });
+
+  $("mobileMenuButton").addEventListener("click", () => {
+    if($("mainSidebar").classList.contains("mobile-open")) closeMobileMenu();
+    else openMobileMenu();
+  });
+  $("menuBackdrop").addEventListener("click", closeMobileMenu);
+  document.addEventListener("keydown", event => {
+    if(event.key === "Escape"){
+      closeMobileMenu();
+      closeEmailNotificationsPopover();
+      closeEmailSettingsModal();
+      $("emailAlertToast")?.classList.remove("show");
+    }
+  });
+  window.matchMedia("(min-width:1025px)").addEventListener("change", event => { if(event.matches) closeMobileMenu(); });
+
+  document.querySelectorAll("[data-email-notifications-toggle]").forEach(button => {
+    button.addEventListener("click", toggleEmailNotificationsPopover);
+  });
+  $("closeEmailNotifications")?.addEventListener("click", closeEmailNotificationsPopover);
+  $("openEmailSettings")?.addEventListener("click", openEmailSettingsModal);
+  $("openEmailSettingsDashboard")?.addEventListener("click", openEmailSettingsModal);
+  $("toggleEmailSound")?.addEventListener("click", async () => {
+    emailSoundEnabled = !emailSoundEnabled;
+    localStorage.setItem(EMAIL_SOUND_STORAGE_KEY, String(emailSoundEnabled));
+    renderEmailSoundControl();
+    if(emailSoundEnabled){
+      await unlockEmailNotificationSound();
+      await playEmailNotificationSound();
+      toast("Alerta sonoro ativado.");
+    }else{
+      toast("Alerta sonoro silenciado.");
+    }
+  });
+  $("refreshEmailNotifications")?.addEventListener("click", () => loadEmailNotifications({announce:false}));
+  $("markEmailNotificationsRead")?.addEventListener("click", markEmailNotificationsRead);
+  $("emailActiveTab")?.addEventListener("click", () => setEmailNotificationMode(false));
+  $("emailHistoryTab")?.addEventListener("click", () => setEmailNotificationMode(true));
+  $("openEmailNotifications")?.addEventListener("click", openEmailHistory);
+  $("closeEmailAlertToast")?.addEventListener("click", () => $("emailAlertToast")?.classList.remove("show"));
+  $("cancelEmailSettings")?.addEventListener("click", closeEmailSettingsModal);
+  $("emailSettingsModal")?.addEventListener("click", event => {
+    if(event.target === $("emailSettingsModal")) closeEmailSettingsModal();
+  });
+  $("emailSettingsForm")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    const password = $("emailSettingsPassword").value;
+    const button = $("saveEmailSettings");
+    if(!password){
+      $("emailSettingsResult").textContent = "Informe a senha do e-mail.";
+      return;
+    }
+    button.disabled = true;
+    button.textContent = "Testando conexão…";
+    $("emailSettingsResult").textContent = "";
+    try{
+      const result = await cloudRequest("/api/email-settings", {
+        method:"PUT",
+        body:JSON.stringify({password})
+      });
+      emailIntegration = result.integration || emailIntegration;
+      renderEmailNotifications();
+      closeEmailSettingsModal();
+      toast("E-mail configurado e conexão validada.");
+      await loadEmailNotifications({announce:false});
+    }catch(error){
+      $("emailSettingsResult").textContent = error.message || "Não foi possível configurar o e-mail.";
+    }finally{
+      button.disabled = false;
+      button.textContent = "Testar e ativar";
+    }
+  });
+  document.addEventListener("click", event => {
+    const button = event.target.closest(".email-mark-read-button");
+    if(!button) return;
+    const eventKey = decodeURIComponent(button.dataset.emailEventKey || "");
+    updateSingleEmailStatus(eventKey, button.dataset.emailAction || "", button);
+  });
+  document.addEventListener("change", event => {
+    const select = event.target.closest("[data-email-status-editor]");
+    if(!select) return;
+    const eventKey = decodeURIComponent(select.dataset.emailEventKey || "");
+    updateSingleEmailStatus(eventKey, select.value || "", select);
+  });
+  document.addEventListener("click", event => {
+    if(!$("emailNotificationPopover")?.classList.contains("hidden")
+      && !$("emailNotificationPopover").contains(event.target)
+      && !event.target.closest("[data-email-notifications-toggle]")
+      && event.target !== $("openEmailNotifications")){
+      closeEmailNotificationsPopover();
+    }
+  });
+  document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "visible" && emailNotificationsLoaded && currentEmailShiftId()){
+      loadEmailNotifications();
+    }
+  });
+  document.addEventListener("pointerdown", unlockEmailNotificationSound, {once:true, capture:true});
+  document.addEventListener("keydown", unlockEmailNotificationSound, {once:true, capture:true});
 
   $("saveShift").addEventListener("click", () => {
     const date = $("shiftDate").value;
     const type = $("shiftType").value;
     const professional = $("professional").value.trim();
+    const startingNewShift = !state.shift || isShiftClosed();
 
     if(!date || !professional){
       alert("Informe a data e o plantonista.");
@@ -1717,7 +4726,7 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     }
 
     if(isShiftClosed()){
-      if(!confirm("Deseja iniciar um novo plantão? Os registros encerrados permanecerão no histórico local.")){
+      if(!confirm("Deseja iniciar um novo plantão? Os registros encerrados permanecerão no histórico integrado.")){
         return;
       }
 
@@ -1731,6 +4740,8 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
         endedAt: null
       };
       state.records = [];
+      state.shiftCensusUpdates = [];
+      state.hospubCensus = normalizeHospubCensus({...state.hospubCensus,sectors:[],capturedAt:null});
       state.sbar = {
         operationalStatus:"",
         turnover:"",
@@ -1756,6 +4767,17 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     }
 
     saveState();
+    if(startingNewShift){
+      emailNotifications = [];
+      emailNotificationsLoaded = false;
+      renderEmailNotifications();
+      startEmailNotificationPolling();
+      startHospubCensusPolling();
+      loadEmailNotifications({announce:false});
+    }
+    if(startingNewShift){
+      showShiftReminder("Ponto de entrada", "Lembre-se de registrar o ponto de entrada.");
+    }
   });
 
   $("addRecord").addEventListener("click", () => {
@@ -1827,6 +4849,7 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
 
   function buildShiftReportData(){
     const shift = state.shift || {};
+    const archivedItem = shift.id ? state.history.find(item => item.id === shift.id) : null;
     return {
       title: "RELATÓRIO DO PLANTÃO - NIR CEMETRON",
       date: shift.date ? formatDate(shift.date) : "NÃO INFORMADA",
@@ -1835,6 +4858,10 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
       status: getShiftStatus(),
       startedAt: shift.startedAt ? formatDateTime(shift.startedAt) : "",
       endedAt: shift.endedAt ? formatDateTime(shift.endedAt) : "",
+      emailSummary:archivedItem?.emailSummary || buildEmailProductivitySummary(),
+      censusUpdates:Array.isArray(archivedItem?.censusUpdates)
+        ? JSON.parse(JSON.stringify(archivedItem.censusUpdates))
+        : JSON.parse(JSON.stringify(state.shiftCensusUpdates || [])),
       records: state.records.slice().sort((a,b) => String(a.requestTime).localeCompare(String(b.requestTime)))
     };
   }
@@ -1849,6 +4876,8 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
       shift: JSON.parse(JSON.stringify(state.shift)),
       records: JSON.parse(JSON.stringify(state.records)),
       sbar: JSON.parse(JSON.stringify(state.sbar)),
+      emailSummary:buildEmailProductivitySummary(),
+      censusUpdates:JSON.parse(JSON.stringify(state.shiftCensusUpdates || [])),
       archivedAt: new Date().toISOString()
     };
 
@@ -1860,7 +4889,7 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     }
   }
 
-  function closeCurrentShift(){
+  async function closeCurrentShift(){
     if(!state.shift){
       alert("Nenhum plantão foi iniciado.");
       return;
@@ -1873,15 +4902,21 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
       return;
     }
 
+    await loadEmailNotifications({announce:false});
     state.shift.status = "ENCERRADO";
     state.shift.endedAt = new Date().toISOString();
     archiveClosedShift();
     saveState();
-    toast("Plantão encerrado e arquivado no histórico local.");
+    stopEmailNotificationPolling();
+    stopHospubCensusPolling();
+    toast("Plantão encerrado e arquivado no histórico integrado.");
+    showShiftReminder("Ponto de saída", "Lembre-se de registrar o ponto de saída.");
   }
 
   function createPrintableReport(){
     const data = buildShiftReportData();
+    const emailSummary = data.emailSummary || {received:0,responded:0,acknowledged:0};
+    const censusRows = censusHistoryRowsMarkup(data.censusUpdates);
     const rows = data.records.length
       ? data.records.map(record => {
           const meta = moduleMeta[record.module] || {title:"REGISTRO"};
@@ -1907,6 +4942,9 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
   body{font-family:Arial,sans-serif;color:#111827;margin:0}
   h1{font-size:20px;margin:0 0 12px;color:#0f2747}
   .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 18px;margin-bottom:16px;font-size:12px}
+  .productivity{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}
+  .metric{padding:8px;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;font-size:11px}.metric strong{display:block;margin-top:3px;font-size:17px;color:#0f2747}
+  h2{margin:14px 0 7px;color:#0f2747;font-size:13px}
   table{width:100%;border-collapse:collapse;font-size:10px}
   th{background:#0f2747;color:white;text-align:left;padding:7px;border:1px solid #cbd5e1}
   td{padding:7px;border:1px solid #cbd5e1;vertical-align:top}
@@ -1923,6 +4961,18 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     <div><strong>Início:</strong> ${escapeHtml(data.startedAt || "-")}</div>
     <div><strong>Encerramento:</strong> ${escapeHtml(data.endedAt || "-")}</div>
   </div>
+  <div class="productivity">
+    <div class="metric">E-mails recebidos<strong>${emailSummary.received || 0}</strong></div>
+    <div class="metric">E-mails respondidos<strong>${emailSummary.responded || 0}</strong></div>
+    <div class="metric">E-mails com ciência<strong>${emailSummary.acknowledged || 0}</strong></div>
+    <div class="metric">Atualizações do censo<strong>${data.censusUpdates.length}</strong></div>
+  </div>
+  <h2>ATUALIZAÇÕES DO CENSO NO PLANTÃO</h2>
+  <table>
+    <thead><tr><th>Data e hora</th><th>Responsável</th><th>Resumo do censo</th><th>Observações</th></tr></thead>
+    <tbody>${censusRows}</tbody>
+  </table>
+  <h2>REGISTROS DE REGULAÇÃO DO PLANTÃO</h2>
   <table>
     <thead><tr>
       <th>Hora</th><th>Tipo</th><th>Paciente</th><th>Origem</th><th>HD</th><th>Destino</th><th>Status</th>
@@ -1962,6 +5012,8 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
     }
 
     const data = buildShiftReportData();
+    const emailSummary = data.emailSummary || {received:0,responded:0,acknowledged:0};
+    const censusRows = censusHistoryExcelRowsMarkup(data.censusUpdates);
     const rows = data.records.map(record => {
       const meta = moduleMeta[record.module] || {title:"REGISTRO"};
       return `<tr>
@@ -2000,7 +5052,14 @@ ${rows || `<tr><td colspan="7">Nenhum plantão cadastrado.</td></tr>`}
   <tr><td colspan="7" class="title">${escapeHtml(data.title)}</td></tr>
   <tr><td class="meta">Data</td><td>${escapeHtml(data.date)}</td><td class="meta">Plantão</td><td colspan="4">${escapeHtml(data.type)}</td></tr>
   <tr><td class="meta">Plantonista</td><td>${escapeHtml(data.professional)}</td><td class="meta">Status</td><td>${escapeHtml(data.status)}</td><td class="meta">Encerramento</td><td colspan="2">${escapeHtml(data.endedAt || "-")}</td></tr>
+  <tr><td class="meta">E-mails recebidos</td><td>${emailSummary.received || 0}</td><td class="meta">Respondidos</td><td>${emailSummary.responded || 0}</td><td class="meta">Cientes</td><td>${emailSummary.acknowledged || 0}</td><td></td></tr>
+  <tr><td class="meta">Atualizações do censo</td><td>${data.censusUpdates.length}</td><td colspan="5"></td></tr>
   <tr><td colspan="7"></td></tr>
+  <tr><td colspan="7" class="title">Atualizações do censo no plantão</td></tr>
+  <tr><th>Data e hora</th><th>Responsável</th><th colspan="4">Resumo do censo</th><th>Observações</th></tr>
+  ${censusRows}
+  <tr><td colspan="7"></td></tr>
+  <tr><td colspan="7" class="title">Registros de regulação do plantão</td></tr>
   <tr><th>Hora</th><th>Tipo</th><th>Paciente</th><th>Origem</th><th>HD</th><th>Destino</th><th>Status</th></tr>
   ${rows || `<tr><td colspan="7">Sem registros neste plantão.</td></tr>`}
 </table>
@@ -2107,7 +5166,7 @@ background: $("background").value.trim(),
       assessment: $("assessment").value.trim(),
       recommendation: $("recommendation").value.trim()
     };
-    localStorage.setItem("nirCemetronFinalStateV2", JSON.stringify(state));
+    saveState();
 
     const shift = state.shift || {};
     const now = new Date();
@@ -2228,18 +5287,152 @@ background: $("background").value.trim(),
     $("exportCalendarExcel").addEventListener("click",exportCalendarExcel);
   }
 
-  if($("resetLocalData")){
-    $("resetLocalData").addEventListener("click", () => {
-      if(!confirm("Deseja apagar todos os dados salvos localmente neste navegador?")){
-        return;
-      }
-      localStorage.removeItem("nirCemetronFinalStateV2");
-      location.reload();
+
+  $("hospubRefreshNow")?.addEventListener("click", () => requestHospubCensusUpdate({manual:true}));
+  $("toggleHospubCapacityConfig")?.addEventListener("click", () => {
+    if(!hospubCapacityEditing){
+      hospubCapacityEditing = true;
+      hospubCapacityDraft = {...state.hospubCensus.capacities};
+      hospubCareAreaDraft = Object.fromEntries(hospubSectorRows().map(sector => [sector.key,hospubCareAreaFor(sector)]));
+      renderHospubOccupancy();
+      setTimeout(() => document.querySelector(".hospub-capacity-input")?.focus(),50);
+      return;
+    }
+    state.hospubCensus = normalizeHospubCensus({
+      ...state.hospubCensus,
+      capacities:{...hospubCapacityDraft},
+      careAreas:{...hospubCareAreaDraft}
     });
-  }
+    hospubCapacityEditing = false;
+    hospubCareAreaDraft = {};
+    saveState();
+    toast("Leitos e tags assistenciais salvos.");
+  });
+  $("cancelHospubCapacityConfig")?.addEventListener("click", () => {
+    hospubCapacityEditing = false;
+    hospubCapacityDraft = {};
+    hospubCareAreaDraft = {};
+    renderHospubOccupancy();
+  });
+  document.addEventListener("input", event => {
+    const input = event.target.closest("[data-hospub-capacity-key]");
+    if(!input || !hospubCapacityEditing) return;
+    const key = decodeURIComponent(input.dataset.hospubCapacityKey || "");
+    if(!/^[a-z0-9-]{1,90}$/.test(key)) return;
+    hospubCapacityDraft[key] = input.value === "" ? "" : Math.max(0,Number(input.value) || 0);
+  });
+  document.addEventListener("change", event => {
+    const select = event.target.closest("[data-hospub-care-key]");
+    if(!select || !hospubCapacityEditing) return;
+    const key = decodeURIComponent(select.dataset.hospubCareKey || "");
+    if(!/^[a-z0-9-]{1,90}$/.test(key)) return;
+    const careArea = String(select.value || "");
+    if(!HOSPUB_CARE_AREA_OPTIONS.includes(careArea)) return;
+    hospubCareAreaDraft[key] = careArea;
+  });
+
+  $("openBedCensusModal")?.addEventListener("click", openBedCensusModal);
+  $("closeBedCensusModal")?.addEventListener("click", closeBedCensusModal);
+  $("bedCensusModal")?.addEventListener("click", event => {
+    if(event.target === $("bedCensusModal")) closeBedCensusModal();
+  });
+  $("clearBedCensusForm")?.addEventListener("click", () => {
+    if(confirm("Deseja limpar todos os campos do formulário?")) clearBedCensusForm();
+  });
+  $("saveBedCensus")?.addEventListener("click", () => {
+    const census = readBedCensusForm();
+    if(!census.censusDate || !census.censusTime || !census.performedBy){
+      alert("Informe a data, a hora e quem realizou o censo.");
+      return;
+    }
+    state.bedCensus = census;
+    if(state.shift && !isShiftClosed()){
+      state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+      state.shiftCensusUpdates.push({
+        ...JSON.parse(JSON.stringify(census)),
+        id:crypto.randomUUID ? crypto.randomUUID() : `census-${Date.now()}`,
+        shiftId:state.shift.id || null,
+        recordedAt:census.updatedAt
+      });
+    }
+    saveState();
+    closeBedCensusModal();
+    toast(state.shift && !isShiftClosed()
+      ? "Censo registrado no histórico deste plantão."
+      : "Censo registrado sem vínculo com plantão ativo.");
+  });
+
+  $("dismissShiftReminder").addEventListener("click", hideShiftReminder);
+
+  $("saveStandardMessage").addEventListener("click", () => {
+    const title = $("standardMessageTitle").value.trim();
+    const text = $("standardMessageText").value.trim();
+    if(!title || !text){
+      alert("Informe o título e o texto da mensagem.");
+      return;
+    }
+    const now = new Date().toISOString();
+    if(editingStandardMessageId){
+      const index = state.standardMessages.findIndex(item => item.id === editingStandardMessageId);
+      if(index >= 0) state.standardMessages[index] = {...state.standardMessages[index], title, text, updatedAt:now};
+      toast("Mensagem atualizada.");
+    }else{
+      state.standardMessages.push({id:crypto.randomUUID ? crypto.randomUUID() : `message-${Date.now()}`, title, text, createdAt:now, updatedAt:now});
+      toast("Mensagem salva.");
+    }
+    saveState();
+    clearStandardMessageForm();
+  });
+
+  $("cancelStandardMessage").addEventListener("click", clearStandardMessageForm);
+
+  $("openFullShiftReport")?.addEventListener("click", () => {
+    document.querySelector('nav button[data-view="relatorioPlantao"]')?.click();
+  });
+
+  $("exportBackup").addEventListener("click", () => {
+    const stamp = new Date().toISOString().slice(0,10);
+    downloadBlob(JSON.stringify(state, null, 2), "application/json;charset=utf-8", `backup_scir_${stamp}.json`);
+    toast("Backup exportado.");
+  });
+
+  $("importBackup").addEventListener("click", () => $("backupFile").click());
+  $("backupFile").addEventListener("change", async event => {
+    const file = event.target.files?.[0];
+    if(!file) return;
+    try{
+      const imported = JSON.parse(await file.text());
+      if(!imported || typeof imported !== "object" || Array.isArray(imported)) throw new Error();
+      if(!confirm("Importar este backup substituirá a base integrada atual. Deseja continuar?")) return;
+      state = imported;
+      state.records = Array.isArray(state.records) ? state.records : [];
+      state.history = Array.isArray(state.history) ? state.history : [];
+      state.calendarShifts = Array.isArray(state.calendarShifts) ? state.calendarShifts : [];
+      state.dashboardNotes = typeof state.dashboardNotes === "string" ? state.dashboardNotes : "";
+      state.dashboardNotesUpdatedAt = state.dashboardNotesUpdatedAt || null;
+      state.standardMessages = Array.isArray(state.standardMessages) ? state.standardMessages : [];
+      state.shiftCensusUpdates = Array.isArray(state.shiftCensusUpdates) ? state.shiftCensusUpdates : [];
+      state.hospubCensus = normalizeHospubCensus(state.hospubCensus);
+      state.bedCensus = state.bedCensus && typeof state.bedCensus === "object" ? state.bedCensus : {
+        infectologia:{masc2:"",masc3:"",fem:"",tb:"",utiColetivo:"",utiIsolamento:""},
+        clinica:{masc1:"",masc1Isolamento:"",fem:"",utiGeral:""},
+        observations:"",
+        censusDate:"",
+        censusTime:"",
+        performedBy:"",
+        updatedAt:null
+      };
+      seedLatestCensusForCurrentShift();
+      saveState();
+      toast("Backup importado e enviado à nuvem.");
+    }catch{
+      alert("O arquivo selecionado não é um backup válido do SCIR.");
+    }finally{ event.target.value = ""; }
+  });
 
   renderAll();
   ensureCurrentRequestTime();
+  loadCloudState();
 </script>
 </body>
 </html>

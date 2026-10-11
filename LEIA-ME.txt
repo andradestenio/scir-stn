@@ -1,0 +1,82 @@
+SCIR — NIR CEMETRON | Versão 1.12.0 com acesso direto sem login
+
+CAMINHO SIMPLIFICADO
+- Não é necessário editar código.
+- Não é necessário executar novo SQL no Supabase.
+- Não é necessário cadastrar nova variável na Vercel.
+- Não é necessário Docker, Terminal ou computador permanentemente ligado.
+- O SCIR abre diretamente no Dashboard, sem página de login e sem botão Sair.
+- Depois do deploy, basta clicar em “Configurar e-mail” dentro do SCIR,
+  informar a senha do Zimbra e clicar em “Testar e ativar”.
+- Cada e-mail novo durante o plantão gera um alerta visual e um sinal sonoro alto de três tons.
+- O botão de alto-falante no centro de notificações permite silenciar o som.
+- E-mail não tratado aparece em amarelo com a tag “Pendente”.
+- “Marcar como lida” muda o cartão para azul e mostra a tag “Lido”.
+- “Marcar como respondido” muda o cartão para verde e mostra a tag “Respondido”.
+- O Dashboard mostra um resumo com as quantidades de pendentes, lidos e respondidos.
+- E-mails respondidos saem da lista em acompanhamento e ficam em “Ver todas” → “Histórico”.
+- Os status ficam salvos na base integrada e aparecem em todos os dispositivos.
+- O monitoramento começa ao iniciar o plantão e para imediatamente ao encerrá-lo.
+- Durante o plantão, a caixa é atualizada aproximadamente a cada 10 segundos enquanto o SCIR estiver aberto.
+- E-mails recebidos fora do plantão não geram notificação no plantão seguinte.
+- No relatório SBAR, “Vagas disponíveis” é um campo amplo para texto longo.
+- O histórico, as contagens e a lista de e-mails mostram somente as mensagens do plantão atual.
+- E-mails respondidos de plantões anteriores não aparecem no plantão seguinte.
+- Após a leitura, o e-mail pode ser finalizado como “Respondido” ou “Ciente 👍🏻”.
+- “Ciente 👍🏻” aparece em roxo e permanece somente no histórico daquele plantão.
+- O campo “Editar ação” permite trocar qualquer e-mail entre Pendente, Lido, Respondido e Ciente 👍🏻.
+- Ao voltar para Pendente ou Lido, o e-mail reaparece em “Em acompanhamento”.
+- O relatório registra e-mails recebidos, respondidos, cientes e todas as atualizações do censo.
+- Esses indicadores permanecem no histórico do plantão e nas exportações PDF e Excel.
+- O menu lateral possui o novo módulo independente “Ocupação Hospub”.
+- O módulo calcula pacientes internados, leitos operacionais, disponíveis e taxa de ocupação por setor.
+- Todas as opções de PA entram na consulta; opções de teste e “XXXXXXX” são ignoradas.
+- A atualização ocorre a cada cinco minutos apenas com plantão ativo e registra mudanças no histórico.
+- Para instalar o conector, siga o arquivo conector-hospub/INSTALAR.txt.
+- O conector 1.0.1 se ativa automaticamente na página correta do Hospub, inclusive quando a consulta está dentro de um quadro interno.
+- Ao atualizar, abra chrome://extensions e clique em “Recarregar” no cartão do conector.
+- O conector 1.0.2 reconhece “Lista de Pacientes - (0)” como setor vazio válido e continua a atualização se uma clínica isolada falhar.
+- Setores ainda não consultados aparecem como “Aguardando Hospub”, sem serem contabilizados incorretamente como zero.
+- Os ícones dos quatro indicadores de ocupação foram alinhados e padronizados.
+- A tabela de ocupação exibe uma linha final com os totais de todas as colunas e a taxa consolidada.
+- Conexão, última atualização e botão do Hospub possuem largura, altura e alinhamento padronizados.
+- Cada setor possui uma tag assistencial INFECTO, CM ou INFECTO/CM ao lado do nome.
+- Linhas do PA aparecem em amarelo, Salas Vermelhas em vermelho e UTIs em laranja.
+- PA/Sala Vermelha segue a prioridade de Sala Vermelha e aparece em vermelho.
+- Setores com 100% ou mais de ocupação exibem o símbolo de alerta ⚠ na coluna da taxa.
+- O botão “Configurar leitos e tags” permite editar e salvar a tag de cada setor.
+- Masculina 2 utiliza inicialmente a tag “INFECTO/PPL”.
+- Nas Salas Vermelhas, pacientes internados acima de zero aparecem em vermelho com o símbolo ⚠.
+
+CONFIGURAÇÃO JÁ DEFINIDA
+- E-mail: nr.cemetron@sesau.ro.gov.br
+- Servidor: webmail.sesau.ro.gov.br
+- Protocolo: IMAP com TLS
+- Porta: 993
+- Caixa: INBOX
+
+ATUALIZAÇÃO DO SISTEMA
+1. Extraia o pacote.
+2. Substitua no repositório todos os arquivos correspondentes.
+3. Faça commit e push no repositório conectado à Vercel.
+4. Aguarde o deploy.
+5. Entre no SCIR e abra “Configurar e-mail”.
+6. Informe a senha e clique em “Testar e ativar”.
+
+SEGURANÇA
+- A senha não está incluída neste pacote.
+- A senha é testada pela função segura da Vercel.
+- Depois de validada, é armazenada com criptografia AES-256-GCM.
+- A senha nunca é devolvida ao navegador.
+- Somente remetente, assunto e horário são processados.
+- Corpo e anexos dos e-mails não são baixados.
+
+VALIDAÇÕES EXECUTADAS
+- Sintaxe das funções e do script inline validada com Node.js.
+- IDs HTML duplicados: nenhum.
+- Testes das APIs e da criptografia: aprovados.
+- Alerta sonoro acionado somente por mensagens novas.
+- Início e pausa do monitoramento vinculados ao plantão ativo.
+- Resumo por status e histórico de respondidos validados.
+- Auditoria npm: nenhuma vulnerabilidade encontrada.
+- Acesso direto, nuvem, registros, censo, calendário e módulos laterais validados.
